@@ -334,17 +334,10 @@ export default function App() {
       window.removeEventListener("scroll", updateRect);
     };
   }, []);
-  const [tutorialStep, setTutorialStep] = useState(() => {
-    try {
-      return localStorage.getItem("malla-tutorial-done-v2") ? -1 : 0;
-    } catch {
-      return 0;
-    }
-  });
+  const [tutorialStep, setTutorialStep] = useState(0);
 
   const closeTutorial = useCallback(() => {
     setTutorialStep(-1);
-    localStorage.setItem("malla-tutorial-done-v2", "1");
   }, []);
 
   const openTutorial = useCallback(() => setTutorialStep(0), []);
