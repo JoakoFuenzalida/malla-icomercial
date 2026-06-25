@@ -685,8 +685,8 @@ body {
 .tutorial-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -694,20 +694,13 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
-.tutorial-overlay.tutorial-overlay-spotlight {
-  background: transparent;
-  backdrop-filter: none;
-}
-
 .tutorial-modal {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: transparent;
+  border: none;
   padding: 2.5rem 3rem;
   max-width: 720px;
   width: 92%;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -843,50 +836,43 @@ body {
   color: var(--text-secondary);
 }
 
-/* Tutorial - Ruta button highlight */
-.tutorial-highlight-ruta {
-  position: relative;
-  z-index: 10001;
-  background: var(--bg-surface);
-  border-radius: var(--radius);
-  padding: 4px;
-  margin: -4px;
-  box-shadow:
-    0 0 0 9999px rgba(15, 23, 42, 0.85),
-    0 0 24px 6px rgba(59, 130, 246, 0.5);
+/* Tutorial - Floating Ruta button (above overlay blur) */
+.tutorial-ruta-highlight {
+  position: fixed;
+  z-index: 10005;
   animation: tutorialPulse 2s ease-in-out infinite;
+  border-radius: var(--radius);
 }
 
-.tutorial-highlight-ruta .btn-route {
+.tutorial-ruta-highlight .btn-route {
   background: var(--bg-elevated);
   color: var(--text-primary);
   border-color: var(--accent);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes tutorialPulse {
-  0%, 100% {
-    box-shadow:
-      0 0 0 9999px rgba(15, 23, 42, 0.85),
-      0 0 20px 4px rgba(59, 130, 246, 0.5);
-  }
-  50% {
-    box-shadow:
-      0 0 0 9999px rgba(15, 23, 42, 0.85),
-      0 0 30px 10px rgba(59, 130, 246, 0.7);
-  }
+  0%, 100% { box-shadow: 0 0 20px 4px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 32px 10px rgba(59, 130, 246, 0.75); }
 }
 
 .tutorial-arrow-indicator {
   position: absolute;
-  top: calc(100% + 16px);
+  top: calc(100% + 12px);
   right: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
-  z-index: 10002;
+  z-index: 10006;
   pointer-events: none;
   animation: tutorialBounce 1.2s ease-in-out infinite;
+  white-space: nowrap;
 }
 
 .tutorial-arrow-text {
@@ -976,7 +962,7 @@ body {
   width: 200px;
   border-radius: var(--radius);
   padding: 10px 12px 12px;
-  background: #1e3a5f;
+  background: #c2410c;
   border: 1px solid transparent;
   box-shadow: var(--shadow-card);
 }

@@ -317,6 +317,23 @@ export default function App() {
   const [hovered, setHovered] = useState(null);
   const [showRoute, setShowRoute] = useState(false);
   const [showEaster, setShowEaster] = useState(false);
+  const rutaBtnRef = useRef(null);
+  const [rutaBtnRect, setRutaBtnRect] = useState(null);
+
+  useEffect(() => {
+    if (!rutaBtnRef.current) return;
+    function updateRect() {
+      const r = rutaBtnRef.current?.getBoundingClientRect();
+      if (r) setRutaBtnRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+    }
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    window.addEventListener("scroll", updateRect);
+    return () => {
+      window.removeEventListener("resize", updateRect);
+      window.removeEventListener("scroll", updateRect);
+    };
+  }, []);
   const [tutorialStep, setTutorialStep] = useState(() => {
     try {
       return localStorage.getItem("malla-tutorial-done") ? -1 : 0;
@@ -497,8 +514,9 @@ export default function App() {
             <h1>Malla Interactiva - Ingeniería Comercial PUCV</h1>
           </div>
           <div className="header-right">
-            <div className={`tooltip-wrapper ${tutorialStep === 1 ? "tutorial-highlight-ruta" : ""}`}>
+            <div className="tooltip-wrapper">
               <button
+                ref={rutaBtnRef}
                 className={`btn btn-route ${showRoute ? "btn-route-on" : ""}`}
                 onClick={() => setShowRoute((v) => !v)}
               >
@@ -506,11 +524,6 @@ export default function App() {
                 {showRoute ? " Ruta ON" : " Ruta OFF"}
               </button>
               <span className="tooltip">Al pasar el mouse sobre un ramo, resalta sus prerequisitos y dependientes</span>
-              {tutorialStep === 1 && (
-                <div className="tutorial-arrow-indicator">
-                  <span className="tutorial-arrow-text">Activa aquí el modo Ruta</span>
-                </div>
-              )}
             </div>
             <button className="btn btn-clear" onClick={clearAll}>
               Limpiar todo
@@ -617,8 +630,28 @@ export default function App() {
         </div>
       )}
 
+      {tutorialStep === 1 && rutaBtnRect && (
+        <div
+          className="tutorial-ruta-highlight"
+          style={{
+            top: rutaBtnRect.top,
+            left: rutaBtnRect.left,
+            width: rutaBtnRect.width,
+            height: rutaBtnRect.height,
+          }}
+        >
+          <button className="btn btn-route" onClick={(e) => { e.stopPropagation(); setShowRoute((v) => !v); }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>route</span>
+            {showRoute ? " Ruta ON" : " Ruta OFF"}
+          </button>
+          <div className="tutorial-arrow-indicator">
+            <span className="tutorial-arrow-text">Activa aquí el modo Ruta</span>
+          </div>
+        </div>
+      )}
+
       {tutorialStep >= 0 && (
-        <div className={`tutorial-overlay ${tutorialStep === 1 ? "tutorial-overlay-spotlight" : ""}`} onClick={closeTutorial}>
+        <div className="tutorial-overlay" onClick={closeTutorial}>
           <div className="tutorial-modal" onClick={(e) => e.stopPropagation()}>
             {tutorialStep === 0 && (
               <TutorialIntro onNext={() => setTutorialStep(1)} onSkip={closeTutorial} />
