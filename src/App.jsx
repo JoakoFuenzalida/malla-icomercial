@@ -48,7 +48,8 @@ export default function App() {
     }
   });
   const [hovered, setHovered] = useState(null);
-  const [showRoute, setShowRoute] = useState(true);
+  const [showRoute, setShowRoute] = useState(false);
+  const [showEaster, setShowEaster] = useState(false);
 
   const persist = useCallback((next) => {
     setApproved(next);
@@ -295,9 +296,28 @@ export default function App() {
       <footer className="footer">
         <div className="footer-content">
           <span className="footer-copy">Malla Interactiva PUCV</span>
-          <span className="footer-copy">Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Joaquín Fuenzalida</a>, Estudiante Ing. Civil Informática PUCV</span>
+          <span className="footer-copy">
+            Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Joaquín Fuenzalida</a>, Estudiante Ing. Civil Informática PUCV
+            <button className="easter-trigger" onClick={() => setShowEaster(true)} aria-label="Easter egg">♥</button>
+          </span>
         </div>
       </footer>
+
+      {showEaster && (
+        <div className="easter-overlay" onClick={() => setShowEaster(false)}>
+          <div className="easter-hearts">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <span key={i} className="easter-heart" style={{ "--i": i, "--x": Math.random() * 100, "--d": 2 + Math.random() * 4 }}>♥</span>
+            ))}
+          </div>
+          <div className="easter-modal" onClick={(e) => e.stopPropagation()}>
+            <p className="easter-for">Para ti, Sofi</p>
+            <p className="easter-msg">Esta plataforma la hice pensando en ti. Sigue echándole ganas a la U que vas increíble. Estoy orgulloso de ti.</p>
+            <p className="easter-sign">Con cariño, Joako ♥</p>
+            <button className="easter-close" onClick={() => setShowEaster(false)}>Cerrar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
