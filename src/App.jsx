@@ -336,7 +336,7 @@ export default function App() {
   }, []);
   const [tutorialStep, setTutorialStep] = useState(() => {
     try {
-      return localStorage.getItem("malla-tutorial-done") ? -1 : 0;
+      return localStorage.getItem("malla-tutorial-done-v2") ? -1 : 0;
     } catch {
       return 0;
     }
@@ -344,7 +344,7 @@ export default function App() {
 
   const closeTutorial = useCallback(() => {
     setTutorialStep(-1);
-    localStorage.setItem("malla-tutorial-done", "1");
+    localStorage.setItem("malla-tutorial-done-v2", "1");
   }, []);
 
   const openTutorial = useCallback(() => setTutorialStep(0), []);
