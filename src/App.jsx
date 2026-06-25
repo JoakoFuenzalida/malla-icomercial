@@ -38,6 +38,9 @@ function getPrereqChain(courseId, allCourses) {
 const gridCourses = courses.filter((c) => c.semester > 0);
 const optCourses = courses.filter((c) => c.semester === 0);
 
+const courseNum = {};
+courses.forEach((c, i) => { courseNum[c.id] = i + 1; });
+
 export default function App() {
   const [approved, setApproved] = useState(() => {
     try {
@@ -193,11 +196,17 @@ export default function App() {
             <span className="material-symbols-outlined">lock</span>
           </div>
         )}
-        <div className="card-top">
-          <span className="card-code">{course.id}</span>
+        <span className="card-num">{courseNum[course.id]}</span>
+        <span className="card-code">{course.id}</span>
+        <div className="card-name">{course.name}</div>
+        <div className="card-bottom">
+          <div className="card-prereqs">
+            {course.prerequisites.map((pid) => (
+              <span key={pid} className="card-prereq-num">{courseNum[pid]}</span>
+            ))}
+          </div>
           <span className="card-credits">{course.credits} cr</span>
         </div>
-        <div className="card-name">{course.name}</div>
       </div>
     );
   }
@@ -210,13 +219,16 @@ export default function App() {
             <h1>Malla Interactiva - Ingeniería Comercial PUCV</h1>
           </div>
           <div className="header-right">
-            <button
-              className={`btn btn-route ${showRoute ? "btn-route-on" : ""}`}
-              onClick={() => setShowRoute((v) => !v)}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>route</span>
-              {showRoute ? " Ruta ON" : " Ruta OFF"}
-            </button>
+            <div className="tooltip-wrapper">
+              <button
+                className={`btn btn-route ${showRoute ? "btn-route-on" : ""}`}
+                onClick={() => setShowRoute((v) => !v)}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>route</span>
+                {showRoute ? " Ruta ON" : " Ruta OFF"}
+              </button>
+              <span className="tooltip">Al pasar el mouse sobre un ramo, resalta sus prerequisitos y dependientes</span>
+            </div>
             <button className="btn btn-clear" onClick={clearAll}>
               Limpiar todo
             </button>
@@ -230,14 +242,28 @@ export default function App() {
             <h2 className="dashboard-title">Malla Curricular</h2>
             <p className="dashboard-subtitle">Selecciona asignaturas para marcarlas como aprobadas</p>
           </div>
-          <div className="legend">
-            {Object.entries(categories).map(([key, cat]) => (
-              <div className="legend-item" key={key}>
-                <span className="legend-dot" style={{ backgroundColor: cat.dot }} />
-                <span className="legend-text">{cat.name}</span>
+          <div className="dashboard-right">
+            <div className="progress-inline">
+              <div className="progress-info">
+                <span className="progress-text">{approvedCredits} / {TOTAL_CREDITS} Créditos</span>
+                <span className="progress-sep">|</span>
+                <span className="progress-text">{approvedCount} / {totalCourses} ramos</span>
+                <span className="progress-pct">{pct}%</span>
               </div>
-            ))}
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div className="legend">
+          {Object.entries(categories).map(([key, cat]) => (
+            <div className="legend-item" key={key}>
+              <span className="legend-dot" style={{ backgroundColor: cat.dot }} />
+              <span className="legend-text">{cat.name}</span>
+            </div>
+          ))}
         </div>
 
         <div className="malla-scroll">
@@ -277,18 +303,6 @@ export default function App() {
           </div>
           <div className="optativos-row">
             {optCourses.map((course) => renderCard(course))}
-          </div>
-        </div>
-
-        <div className="progress-bar-section">
-          <div className="progress-info">
-            <span className="progress-text">
-              Progreso: {approvedCredits} / {TOTAL_CREDITS} Créditos ·{approvedCount} / {totalCourses} ramos
-            </span>
-            <span className="progress-pct">{pct}%</span>
-          </div>
-          <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
       </main>

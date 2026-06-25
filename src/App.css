@@ -96,13 +96,17 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 1.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
+}
+
+.dashboard-left {
+  flex-shrink: 0;
 }
 
 .dashboard-title {
   font-family: "Playfair Display", serif;
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -111,10 +115,22 @@ body {
 
 .dashboard-subtitle {
   font-family: "Playfair Display", serif;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
   font-style: italic;
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
+}
+
+.dashboard-right {
+  flex: 1;
+  max-width: 400px;
+  min-width: 250px;
+}
+
+.progress-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 /* ── Legend (pill bar) ── */
@@ -280,12 +296,6 @@ body {
   box-shadow: var(--shadow-hover);
 }
 
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .card-code {
   font-size: 8px;
   font-weight: 600;
@@ -294,20 +304,78 @@ body {
   text-transform: uppercase;
 }
 
-.card-credits {
-  font-size: 7px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.55);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .card-name {
   font-size: 10px;
   font-weight: 600;
   color: #ffffff;
   line-height: 1.3;
   margin-top: 1px;
+  flex: 1;
+}
+
+.card-num {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: white;
+  z-index: 4;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 3px;
+}
+
+.card-prereqs {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.card-prereq-num {
+  width: 16px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.card-credits {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.card-locked .card-num {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.card-locked .card-prereq-num {
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-muted);
+}
+
+.card-locked .card-credits {
+  color: var(--text-muted);
 }
 
 /* ── Card: Approved (diagonal red line) ── */
@@ -401,6 +469,8 @@ body {
 /* ── Optativos Section ── */
 .optativos-section {
   padding: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .optativos-header {
@@ -437,39 +507,33 @@ body {
   min-height: 44px;
 }
 
-/* ── Progress Bar Section ── */
-.progress-bar-section {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
+/* ── Progress Bar ── */
+.progress-info {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.progress-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
-.progress-text {
-  font-family: "Playfair Display", serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
+.progress-sep {
+  color: var(--text-muted);
+  font-size: 0.7rem;
 }
 
 .progress-pct {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   color: var(--accent);
+  margin-left: auto;
 }
 
 .progress-track {
-  height: 12px;
+  height: 8px;
   background: var(--bg-elevated);
   border-radius: 999px;
   overflow: hidden;
@@ -523,6 +587,32 @@ body {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
+}
+
+/* ── Tooltip ── */
+.tooltip-wrapper {
+  position: relative;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.tooltip-wrapper:hover .tooltip {
+  display: block;
 }
 
 .btn-clear {
@@ -711,6 +801,16 @@ body {
     gap: 0.75rem;
   }
 
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-right {
+    max-width: 100%;
+    width: 100%;
+  }
+
   .dashboard-title {
     font-size: 1.5rem;
   }
@@ -719,10 +819,6 @@ body {
     border-radius: var(--radius-lg);
     width: 100%;
     justify-content: center;
-  }
-
-  .progress-bar-section {
-    padding: 0.75rem 1rem;
   }
 
   .optativos-row {
