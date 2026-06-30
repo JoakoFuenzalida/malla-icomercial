@@ -1,16 +1,65 @@
-# React + Vite
+# Malla Interactiva PUCV
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Herramienta web para visualizar y hacer seguimiento de tu avance en la malla curricular de carreras de la PUCV.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Que hace
 
-## React Compiler
+- Marca ramos como aprobados y ve tu progreso en creditos y porcentaje
+- Los ramos bloqueados se desbloquean automaticamente al aprobar sus prerrequisitos
+- Modo Ruta: al pasar el mouse sobre un ramo, se resaltan sus prerrequisitos y dependientes
+- Seleccion por semestre o por ano completo
+- Los datos se guardan en tu navegador, no se envian a ningun servidor
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Carreras disponibles
 
-## Expanding the Oxlint configuration
+- Ingenieria Comercial (10 semestres, 200 creditos SCT)
+- Ingenieria Civil Informatica (11 semestres, 208 creditos SCT)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Si quieres que agreguemos tu carrera, llena este [formulario](https://forms.gle/SDN1WiiGTe5BkNo3A) con capturas de tu malla desde el navegador PUCV.
+
+## Stack
+
+- React 19
+- Vite
+- CSS vanilla (sin frameworks)
+- Sin backend, todo corre en el cliente
+
+## Levantar el proyecto
+
+```bash
+npm install
+npm run dev
+```
+
+Se abre en `http://localhost:5173`.
+
+## Estructura
+
+```
+src/
+  App.jsx          # Componente principal, selector de carrera y malla
+  App.css          # Estilos
+  data/
+    courses.js     # Datos de Ingenieria Comercial
+    ici-courses.js # Datos de Ingenieria Civil Informatica
+```
+
+Para agregar una carrera nueva, crea un archivo en `src/data/` siguiendo el formato de los existentes (categorias, cursos con prerrequisitos, creditos totales y cantidad de semestres) y registralo en el objeto `CAREERS` de `App.jsx`.
+
+## Contribuir
+
+El proyecto es codigo abierto. Si encontraste un error en los datos de alguna malla o tienes ideas para mejorar la herramienta, abre un tema en [Discussions](https://github.com/JoakoFuenzalida/malla-icomercial/discussions).
+
+## Aviso
+
+Este sitio no es una pagina oficial de la PUCV ni esta afiliado a la universidad. Es un proyecto independiente hecho por estudiantes. La informacion puede contener errores o estar desactualizada. Consulta siempre los canales oficiales de la universidad.
+
+---
+Para ti, Sofi
+
+Esta plataforma la hice pensando en ti. Sigue echándole ganas a la U que vas increíble. Estoy orgulloso de ti.
+
+Con cariño, Joako ♥
+
+Hecho por [Joaquin Fuenzalida](https://github.com/JoakoFuenzalida), estudiante de Ingenieria Civil Informatica PUCV.
