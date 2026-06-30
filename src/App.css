@@ -182,7 +182,6 @@ body {
 /* ── Year Row ── */
 .year-row {
   display: grid;
-  grid-template-columns: repeat(10, minmax(110px, 1fr));
   gap: var(--col-gap);
   margin-bottom: 6px;
 }
@@ -202,9 +201,6 @@ body {
   letter-spacing: 0.02em;
 }
 
-.year-btn {
-  grid-column: span 2;
-}
 
 .year-btn:hover {
   color: var(--text-primary);
@@ -225,7 +221,6 @@ body {
 /* ── Malla Grid ── */
 .malla-grid {
   display: grid;
-  grid-template-columns: repeat(10, minmax(110px, 1fr));
   gap: var(--col-gap);
 }
 
@@ -578,9 +573,26 @@ body {
   border-color: var(--text-muted);
 }
 
+.btn-carreras {
+  border-color: #166534;
+  color: #4ade80;
+}
+
+.btn-carreras:hover {
+  background: rgba(22, 101, 52, 0.2);
+  border-color: #15803d;
+  color: #86efac;
+}
+
 .btn-route {
-  border-color: var(--border);
-  color: var(--text-muted);
+  border-color: #1e40af;
+  color: #60a5fa;
+}
+
+.btn-route:hover {
+  background: rgba(30, 64, 175, 0.2);
+  border-color: #2563eb;
+  color: #93bbfd;
 }
 
 .btn-route-on {
@@ -644,6 +656,7 @@ body {
   font-family: "Inter", sans-serif;
   font-size: 0.7rem;
   color: var(--text-muted);
+  position: relative;
 }
 
 .footer-copy {
@@ -1423,6 +1436,281 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* ── Header Home Link ── */
+.header-home {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.header-home:hover {
+  opacity: 0.7;
+}
+
+/* ── Dropdown Carreras ── */
+.dropdown-wrapper {
+  position: relative;
+}
+
+.btn-dropdown {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  min-width: 220px;
+  overflow: hidden;
+  animation: dropdownIn 0.15s ease;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.dropdown-item-active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.dropdown-item + .dropdown-item {
+  border-top: 1px solid var(--border);
+}
+
+/* ── Career Selector ── */
+.career-page {
+  justify-content: center;
+  align-items: center;
+}
+
+.career-selector {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.career-welcome {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.15rem;
+}
+
+.career-main-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.career-hero {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+}
+
+.career-features {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.career-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.career-feature-icon {
+  font-size: 18px;
+  color: var(--accent);
+}
+
+.career-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.career-cards {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.career-card {
+  background: var(--cat-color);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  width: 210px;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  text-align: left;
+}
+
+.career-card:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: var(--shadow-hover);
+  filter: brightness(1.15);
+}
+
+.career-card .card-code {
+  font-size: 11px;
+}
+
+.career-card .card-name {
+  font-size: 14px;
+  margin-top: 3px;
+}
+
+.career-card .card-bottom {
+  margin-top: 6px;
+}
+
+.career-card .card-credits {
+  font-size: 10px;
+}
+
+.career-card-num {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+  z-index: 4;
+}
+
+/* ── Career Disclaimer ── */
+.career-disclaimer {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  max-width: 900px;
+  margin: 0 auto;
+  opacity: 0.55;
+  text-align: center;
+  padding: 0 2rem 1.25rem;
+}
+
+/* ── Career Footer ── */
+.career-footer {
+  width: 100%;
+}
+
+.career-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.career-footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.career-footer-link .material-symbols-outlined {
+  font-size: 15px;
+}
+
+.career-footer-link:hover {
+  color: var(--accent);
+}
+
+.career-footer-sep {
+  color: var(--border);
+  font-size: 0.7rem;
+}
+
+/* ── Malla Footer (3 columns) ── */
+.malla-footer .footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.malla-footer-career {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 600;
+  color: var(--text-secondary) !important;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .header-text h1 {
@@ -1470,5 +1758,14 @@ body {
   .footer-content {
     flex-direction: column;
     text-align: center;
+  }
+
+  .career-main-title {
+    font-size: 1.6rem;
+  }
+
+  .career-card {
+    width: 100%;
+    max-width: 250px;
   }
 }

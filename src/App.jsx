@@ -1,8 +1,22 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import { courses, categories, TOTAL_CREDITS, TOTAL_SEMESTERS } from "./data/courses";
+import * as icomData from "./data/courses";
+import * as iciData from "./data/ici-courses";
 import "./App.css";
 
-const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
+
+const CAREERS = {
+  icom: {
+    name: "Ingeniería Comercial",
+    short: "Ing. Comercial",
+    data: icomData,
+  },
+  ici: {
+    name: "Ingeniería Civil Informática",
+    short: "Ing. Civil Informática",
+    data: iciData,
+  },
+};
 
 function getDependent(courseId, allCourses) {
   const deps = new Set();
@@ -35,12 +49,6 @@ function getPrereqChain(courseId, allCourses) {
   return chain;
 }
 
-const gridCourses = courses.filter((c) => c.semester > 0);
-const optCourses = courses.filter((c) => c.semester === 0);
-
-const courseNum = {};
-courses.forEach((c, i) => { courseNum[c.id] = i + 1; });
-
 function TutorialIntro({ onNext, onSkip }) {
   const [active, setActive] = useState(null);
 
@@ -57,14 +65,6 @@ function TutorialIntro({ onNext, onSkip }) {
     prereq: { side: "left", top: 146 },
     creditos: { side: "right", top: 146 },
   };
-
-  function getConnector(key) {
-    const a = anchors[key];
-    const onLeft = labels[key].side === "left";
-    const x1 = onLeft ? 0 : 220;
-    const y1 = labels[key].top + 9;
-    return { x1, y1, x2: a.x, y2: a.y, accent: a.accent, hx: a.hx, hy: a.hy, hw: a.hw, hh: a.hh };
-  }
 
   return (
     <>
@@ -113,7 +113,7 @@ function TutorialIntro({ onNext, onSkip }) {
               onMouseEnter={() => setActive("sigla")}
               onMouseLeave={() => setActive(null)}
             >
-              ICA1101
+              XXX1234
             </span>
             <span
               className={`tut-intro-num ${active === "numero" ? "is-active" : ""}`}
@@ -145,7 +145,7 @@ function TutorialIntro({ onNext, onSkip }) {
         <svg className="tut-intro-svg" viewBox="0 0 600 236" preserveAspectRatio="none">
           {Object.keys(anchors).map((key) => {
             const isActive = active === key;
-            const c = getConnector(key);
+            const c = anchors[key];
             const onLeft = labels[key].side === "left";
             const sigloX1 = onLeft ? 170 : 430;
             const sigloX2 = onLeft ? 195 : 405;
@@ -207,47 +207,44 @@ function TutorialRuta({ onClose, onBack }) {
       <p className="tutorial-desc">Visualiza el camino académico de cada asignatura. Entiende las dependencias y requisitos con un solo vistazo.</p>
 
       <div className="tut-demo-grid">
-        {/* 1. Aprobado */}
         <div className="tut-demo-col">
           <div className={`tut-demo-card tut-card-aprobado ${highlighted ? "tut-hl-prereq" : ""}`} style={{ "--cat-color": "#7c2d12" }}>
             <div className="tut-demo-card-line"></div>
             <div className="tut-demo-top">
-              <span className="tut-demo-code">ICA3111</span>
-              <span className="tut-demo-num">13</span>
+              <span className="tut-demo-code">RAMO A</span>
+              <span className="tut-demo-num">1</span>
             </div>
-            <div className="tut-demo-name">Matemáticas Financieras</div>
+            <div className="tut-demo-name">Ramo Anterior</div>
             <div className="tut-demo-bottom">
-              <div className="tut-demo-dots"><span></span><span></span></div>
+              <div className="tut-demo-dots"></div>
               <span className="tut-demo-cr">4 cr</span>
             </div>
           </div>
           <span className="tut-demo-label">Aprobado</span>
         </div>
 
-        {/* 2. Prerrequisito */}
         <div className="tut-demo-col">
           <div className={`tut-demo-card ${highlighted ? "tut-hl-prereq" : ""}`} style={{ "--cat-color": "#7c2d12" }}>
             <div className="tut-demo-top">
-              <span className="tut-demo-code">ICA2212</span>
-              <span className="tut-demo-num">20</span>
+              <span className="tut-demo-code">RAMO B</span>
+              <span className="tut-demo-num">5</span>
             </div>
-            <div className="tut-demo-name">Contabilidad Financiera</div>
+            <div className="tut-demo-name">Prerrequisito Directo</div>
             <div className="tut-demo-bottom">
-              <div className="tut-demo-dots"><span></span><span></span></div>
+              <div className="tut-demo-dots"><span></span></div>
               <span className="tut-demo-cr">4 cr</span>
             </div>
           </div>
           <span className="tut-demo-label">Prerrequisito</span>
         </div>
 
-        {/* 3. Seleccionado */}
         <div className="tut-demo-col">
           <div className={`tut-demo-card ${highlighted ? "tut-hl-selected" : ""}`} style={{ "--cat-color": "#9a3412" }}>
             <div className="tut-demo-top">
-              <span className="tut-demo-code">ICA3113</span>
-              <span className="tut-demo-num">27</span>
+              <span className="tut-demo-code">RAMO C</span>
+              <span className="tut-demo-num">12</span>
             </div>
-            <div className="tut-demo-name">Contabilidad Administrativa</div>
+            <div className="tut-demo-name">Ramo Seleccionado</div>
             <div className="tut-demo-bottom">
               <div className="tut-demo-dots"><span></span></div>
               <span className="tut-demo-cr">4 cr</span>
@@ -259,14 +256,13 @@ function TutorialRuta({ onClose, onBack }) {
           <span className="tut-demo-label tut-demo-label-sel">Seleccionado</span>
         </div>
 
-        {/* 4. Dependiente */}
         <div className="tut-demo-col">
           <div className={`tut-demo-card tut-card-locked ${highlighted ? "tut-hl-dep" : ""}`}>
             <div className="tut-demo-top">
-              <span className="tut-demo-code">ICA3214</span>
-              <span className="tut-demo-num tut-num-locked">32</span>
+              <span className="tut-demo-code">RAMO D</span>
+              <span className="tut-demo-num tut-num-locked">20</span>
             </div>
-            <div className="tut-demo-name-locked">Finanzas 1</div>
+            <div className="tut-demo-name-locked">Ramo Siguiente</div>
             <div className="tut-demo-lock-icon"><span className="material-symbols-outlined" style={{ fontSize: 14 }}>lock</span></div>
             <div className="tut-demo-bottom">
               <div className="tut-demo-dots"><span></span></div>
@@ -276,14 +272,13 @@ function TutorialRuta({ onClose, onBack }) {
           <span className="tut-demo-label">Dependiente</span>
         </div>
 
-        {/* 5. No relacionado */}
         <div className="tut-demo-col">
           <div className={`tut-demo-card tut-card-locked ${highlighted ? "tut-hl-dim" : ""}`}>
             <div className="tut-demo-top">
-              <span className="tut-demo-code">ICA2141</span>
-              <span className="tut-demo-num tut-num-locked">14</span>
+              <span className="tut-demo-code">RAMO E</span>
+              <span className="tut-demo-num tut-num-locked">8</span>
             </div>
-            <div className="tut-demo-name-locked">Tecnologías 1</div>
+            <div className="tut-demo-name-locked">Otro Ramo</div>
             <div className="tut-demo-bottom">
               <div className="tut-demo-dots"></div>
               <span className="tut-demo-cr">4 cr</span>
@@ -305,10 +300,102 @@ function TutorialRuta({ onClose, onBack }) {
   );
 }
 
-export default function App() {
+function CareerSelector({ onSelect }) {
+  return (
+    <div className="app career-page">
+      <div className="career-selector">
+        <p className="career-welcome">Bienvenido a la</p>
+        <h1 className="career-main-title">Malla Interactiva PUCV</h1>
+        <p className="career-hero">Visualiza tu avance, explora prerrequisitos y planifica tu camino académico de forma interactiva.</p>
+
+        <p className="career-subtitle">Selecciona tu carrera</p>
+        <div className="career-cards">
+          <button className="career-card" style={{ "--cat-color": "#b45309" }} onClick={() => onSelect("icom")}>
+            <span className="career-card-num material-symbols-outlined">trending_up</span>
+            <span className="card-code">ICA</span>
+            <div className="card-name">Ingeniería Comercial</div>
+            <div className="card-bottom">
+              <div className="card-prereqs"></div>
+              <span className="card-credits">{CAREERS.icom.data.TOTAL_CREDITS} cr</span>
+            </div>
+          </button>
+          <button className="career-card" style={{ "--cat-color": "#1d4ed8" }} onClick={() => onSelect("ici")}>
+            <span className="career-card-num material-symbols-outlined">terminal</span>
+            <span className="card-code">ICI</span>
+            <div className="card-name">Ingeniería Civil Informática</div>
+            <div className="card-bottom">
+              <div className="card-prereqs"></div>
+              <span className="card-credits">{CAREERS.ici.data.TOTAL_CREDITS} cr</span>
+            </div>
+          </button>
+        </div>
+
+        <div className="career-features">
+          <div className="career-feature">
+            <span className="material-symbols-outlined career-feature-icon">check_circle</span>
+            <span>Marca ramos aprobados y mira tu progreso</span>
+          </div>
+          <div className="career-feature">
+            <span className="material-symbols-outlined career-feature-icon">route</span>
+            <span>Visualiza prerrequisitos y dependencias</span>
+          </div>
+          <div className="career-feature">
+            <span className="material-symbols-outlined career-feature-icon">lock_open</span>
+            <span>Descubre qué ramos se desbloquean</span>
+          </div>
+        </div>
+      </div>
+      <p className="career-disclaimer">
+        Este sitio no es una página oficial de la Pontificia Universidad Católica de Valparaíso ni está afiliado a ella de ninguna forma. Es un proyecto independiente creado por estudiantes con fines informativos y de apoyo académico. La información de las mallas curriculares puede contener errores, estar incompleta o desactualizada. Para información oficial, consulta siempre los canales institucionales de la universidad.
+      </p>
+      <footer className="footer career-footer">
+        <div className="footer-content">
+          <div className="career-footer-links">
+            <a href="https://forms.gle/SDN1WiiGTe5BkNo3A" target="_blank" rel="noopener noreferrer" className="career-footer-link">
+              <span className="material-symbols-outlined">add_circle</span>
+              Solicita tu carrera
+            </a>
+            <span className="career-footer-sep">|</span>
+            <a href="https://github.com/JoakoFuenzalida/malla-icomercial/discussions" target="_blank" rel="noopener noreferrer" className="career-footer-link">
+              <span className="material-symbols-outlined">chat</span>
+              Tienes ideas o dudas? Te escuchamos
+            </a>
+          </div>
+          <span className="footer-copy">
+            Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Joaquín Fuenzalida</a>, Estudiante Ing. Civil Informática PUCV
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
+  const { courses, categories, TOTAL_CREDITS, TOTAL_SEMESTERS } = careerConfig.data;
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const gridCourses = useMemo(() => courses.filter((c) => c.semester > 0), [courses]);
+  const optCourses = useMemo(() => courses.filter((c) => c.semester === 0), [courses]);
+  const courseNum = useMemo(() => {
+    const map = {};
+    courses.forEach((c, i) => { map[c.id] = i + 1; });
+    return map;
+  }, [courses]);
+
+  const numYears = Math.ceil(TOTAL_SEMESTERS / 2);
+
   const [approved, setApproved] = useState(() => {
     try {
-      const saved = localStorage.getItem("malla-approved");
+      const saved = localStorage.getItem(`malla-${careerKey}-approved`);
       return saved ? new Set(JSON.parse(saved)) : new Set();
     } catch {
       return new Set();
@@ -334,18 +421,25 @@ export default function App() {
       window.removeEventListener("scroll", updateRect);
     };
   }, []);
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const [tutorialStep, setTutorialStep] = useState(() => {
+    try {
+      return localStorage.getItem("malla-tutorial-seen") ? -1 : 0;
+    } catch {
+      return 0;
+    }
+  });
 
   const closeTutorial = useCallback(() => {
     setTutorialStep(-1);
+    localStorage.setItem("malla-tutorial-seen", "1");
   }, []);
 
   const openTutorial = useCallback(() => setTutorialStep(0), []);
 
   const persist = useCallback((next) => {
     setApproved(next);
-    localStorage.setItem("malla-approved", JSON.stringify([...next]));
-  }, []);
+    localStorage.setItem(`malla-${careerKey}-approved`, JSON.stringify([...next]));
+  }, [careerKey]);
 
   const isAvailable = useCallback(
     (course) => course.prerequisites.every((p) => approved.has(p)),
@@ -365,7 +459,7 @@ export default function App() {
       }
       persist(next);
     },
-    [approved, persist, isAvailable]
+    [approved, persist, isAvailable, courses]
   );
 
   const markSemester = useCallback(
@@ -388,7 +482,7 @@ export default function App() {
       }
       persist(next);
     },
-    [approved, persist]
+    [approved, persist, courses]
   );
 
   const markYear = useCallback(
@@ -413,14 +507,14 @@ export default function App() {
       }
       persist(next);
     },
-    [approved, persist]
+    [approved, persist, courses]
   );
 
   const clearAll = useCallback(() => persist(new Set()), [persist]);
 
   const approvedCredits = useMemo(
     () => courses.filter((c) => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0),
-    [approved]
+    [approved, courses]
   );
 
   const approvedCount = approved.size;
@@ -431,11 +525,11 @@ export default function App() {
 
   const hoveredPrereqs = useMemo(
     () => (activeHover ? getPrereqChain(activeHover, courses) : new Set()),
-    [activeHover]
+    [activeHover, courses]
   );
   const hoveredDeps = useMemo(
     () => (activeHover ? getDependent(activeHover, courses) : new Set()),
-    [activeHover]
+    [activeHover, courses]
   );
 
   const semesters = useMemo(() => {
@@ -443,7 +537,7 @@ export default function App() {
     for (let s = 1; s <= TOTAL_SEMESTERS; s++) map[s] = [];
     for (const c of gridCourses) map[c.semester].push(c);
     return map;
-  }, []);
+  }, [gridCourses, TOTAL_SEMESTERS]);
 
   function isSemAllDone(sem) {
     return gridCourses.filter((c) => c.semester === sem).every((c) => approved.has(c.id));
@@ -504,9 +598,32 @@ export default function App() {
       <header className="header">
         <div className="header-content">
           <div className="header-text">
-            <h1>Malla Interactiva - Ingeniería Comercial PUCV</h1>
+            <h1><button className="header-home" onClick={onGoHome}>Malla Interactiva</button></h1>
           </div>
           <div className="header-right">
+            <div className="dropdown-wrapper" ref={dropdownRef}>
+              <button className="btn btn-dropdown btn-carreras" onClick={() => setDropdownOpen((v) => !v)}>
+                <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>school</span>
+                Carreras
+                <span className="material-symbols-outlined dropdown-arrow" style={{ fontSize: 14, verticalAlign: "middle", marginLeft: 2 }}>
+                  {dropdownOpen ? "expand_less" : "expand_more"}
+                </span>
+              </button>
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  {Object.entries(CAREERS).map(([key, career]) => (
+                    <button
+                      key={key}
+                      className={`dropdown-item ${key === careerKey ? "dropdown-item-active" : ""}`}
+                      onClick={() => { onSelectCareer(key); setDropdownOpen(false); }}
+                    >
+                      {career.name}
+                      {key === careerKey && <span className="material-symbols-outlined" style={{ fontSize: 14 }}>check</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="tooltip-wrapper">
               <button
                 ref={rutaBtnRef}
@@ -519,6 +636,7 @@ export default function App() {
               <span className="tooltip">Al pasar el mouse sobre un ramo, resalta sus prerequisitos y dependientes</span>
             </div>
             <button className="btn btn-clear" onClick={clearAll}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>delete</span>
               Limpiar todo
             </button>
             <button className="btn btn-help" onClick={openTutorial} title="Ver tutorial">?</button>
@@ -529,7 +647,7 @@ export default function App() {
       <main className="main-content">
         <div className="dashboard-header">
           <div className="dashboard-left">
-            <h2 className="dashboard-title">Malla Curricular</h2>
+            <h2 className="dashboard-title">{careerConfig.name}</h2>
             <p className="dashboard-subtitle">Selecciona asignaturas para marcarlas como aprobadas</p>
           </div>
           <div className="dashboard-right">
@@ -558,18 +676,23 @@ export default function App() {
 
         <div className="malla-scroll">
           <div className="malla-wrapper">
-            <div className="year-row">
-              {[1, 2, 3, 4, 5].map((y) => (
-                <button
-                  key={y}
-                  className={`year-btn ${isYearAllDone(y) ? "year-btn-active" : ""}`}
-                  onClick={() => markYear(y)}
-                >
-                  Año {y}
-                </button>
-              ))}
+            <div className="year-row" style={{ gridTemplateColumns: `repeat(${TOTAL_SEMESTERS}, minmax(110px, 1fr))` }}>
+              {Array.from({ length: numYears }, (_, i) => i + 1).map((y) => {
+                const s2 = y * 2;
+                const span = s2 <= TOTAL_SEMESTERS ? 2 : 1;
+                return (
+                  <button
+                    key={y}
+                    className={`year-btn ${isYearAllDone(y) ? "year-btn-active" : ""}`}
+                    style={{ gridColumn: `span ${span}` }}
+                    onClick={() => markYear(y)}
+                  >
+                    Año {y}
+                  </button>
+                );
+              })}
             </div>
-            <div className="malla-grid">
+            <div className="malla-grid" style={{ gridTemplateColumns: `repeat(${TOTAL_SEMESTERS}, minmax(110px, 1fr))` }}>
               {Array.from({ length: TOTAL_SEMESTERS }, (_, i) => i + 1).map((sem) => (
                 <div className="semester-col" key={sem}>
                   <button
@@ -587,19 +710,32 @@ export default function App() {
           </div>
         </div>
 
-        <div className="optativos-section">
-          <div className="optativos-header">
-            <span>Asignaturas Optativas</span>
+        {optCourses.length > 0 && (
+          <div className="optativos-section">
+            <div className="optativos-header">
+              <span>Asignaturas Optativas</span>
+            </div>
+            <div className="optativos-row">
+              {optCourses.map((course) => renderCard(course))}
+            </div>
           </div>
-          <div className="optativos-row">
-            {optCourses.map((course) => renderCard(course))}
-          </div>
-        </div>
+        )}
       </main>
 
-      <footer className="footer">
+      <footer className="footer malla-footer">
         <div className="footer-content">
-          <span className="footer-copy">Malla Interactiva PUCV</span>
+          <div className="career-footer-links">
+            <a href="https://forms.gle/SDN1WiiGTe5BkNo3A" target="_blank" rel="noopener noreferrer" className="career-footer-link">
+              <span className="material-symbols-outlined">add_circle</span>
+              Solicita tu carrera
+            </a>
+            <span className="career-footer-sep">|</span>
+            <a href="https://github.com/JoakoFuenzalida/malla-icomercial/discussions" target="_blank" rel="noopener noreferrer" className="career-footer-link">
+              <span className="material-symbols-outlined">chat</span>
+              Tienes ideas o dudas? Te escuchamos
+            </a>
+          </div>
+          <span className="footer-copy malla-footer-career">{careerConfig.name} PUCV</span>
           <span className="footer-copy">
             Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Joaquín Fuenzalida</a>, Estudiante Ing. Civil Informática PUCV
             <button className="easter-trigger" onClick={() => setShowEaster(true)} aria-label="Easter egg">♥</button>
@@ -654,5 +790,41 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  const [careerKey, setCareerKey] = useState(() => localStorage.getItem("malla-career") || null);
+
+  useEffect(() => {
+    const oldData = localStorage.getItem("malla-approved");
+    if (oldData && !localStorage.getItem("malla-icom-approved")) {
+      localStorage.setItem("malla-icom-approved", oldData);
+      localStorage.removeItem("malla-approved");
+    }
+  }, []);
+
+  const selectCareer = useCallback((key) => {
+    localStorage.setItem("malla-career", key);
+    setCareerKey(key);
+  }, []);
+
+  const goHome = useCallback(() => {
+    localStorage.removeItem("malla-career");
+    setCareerKey(null);
+  }, []);
+
+  if (!careerKey || !CAREERS[careerKey]) {
+    return <CareerSelector onSelect={selectCareer} />;
+  }
+
+  return (
+    <MallaApp
+      key={careerKey}
+      careerKey={careerKey}
+      careerConfig={CAREERS[careerKey]}
+      onSelectCareer={selectCareer}
+      onGoHome={goHome}
+    />
   );
 }
