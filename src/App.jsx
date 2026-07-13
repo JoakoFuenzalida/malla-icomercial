@@ -401,6 +401,16 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
       return new Set();
     }
   });
+  
+  const [plannedSemesters, setPlannedSemesters] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`malla-${careerKey}-planned`);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
   const [hovered, setHovered] = useState(null);
   const [showRoute, setShowRoute] = useState(false);
   const [showEaster, setShowEaster] = useState(false);
@@ -421,6 +431,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
       window.removeEventListener("scroll", updateRect);
     };
   }, []);
+
   const [tutorialStep, setTutorialStep] = useState(() => {
     try {
       return localStorage.getItem("malla-tutorial-seen") ? -1 : 0;
@@ -436,9 +447,15 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
 
   const openTutorial = useCallback(() => setTutorialStep(0), []);
 
-  const persist = useCallback((next) => {
-    setApproved(next);
-    localStorage.setItem(`malla-${careerKey}-approved`, JSON.stringify([...next]));
+  const persist = useCallback((nextApproved, nextPlanned) => {
+    if (nextApproved !== undefined) {
+      setApproved(nextApproved);
+      localStorage.setItem(`malla-${careerKey}-approved`, JSON.stringify([...nextApproved]));
+    }
+    if (nextPlanned !== undefined) {
+      setPlannedSemesters(nextPlanned);
+      localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(nextPlanned));
+    }
   }, [careerKey]);
 
   const isAvailable = useCallback(
@@ -457,15 +474,28 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
         if (!isAvailable(course)) return;
         next.add(course.id);
       }
-      persist(next);
+      persist(next, undefined);
     },
     [approved, persist, isAvailable, courses]
   );
 
+  const moveCourse = useCallback((courseId, targetSemester) => {
+    setPlannedSemesters(prev => {
+      const next = { ...prev, [courseId]: targetSemester };
+      localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(next));
+      return next;
+    });
+  }, [careerKey]);
+
+  const resetPlanning = useCallback(() => {
+    setPlannedSemesters({});
+    localStorage.removeItem(`malla-${careerKey}-planned`);
+  }, [careerKey]);
+
   const markSemester = useCallback(
     (sem) => {
       const next = new Set(approved);
-      const semCourses = courses.filter((c) => c.semester === sem);
+      const semCourses = gridCourses.filter((c) => (plannedSemesters[c.id] || c.semester) === sem);
       const allApproved = semCourses.every((c) => next.has(c.id));
       if (allApproved) {
         for (const c of semCourses) {
@@ -474,15 +504,15 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
           for (const d of deps) next.delete(d);
         }
       } else {
-        for (let s = 1; s <= sem; s++) {
-          for (const c of courses.filter((x) => x.semester === s)) {
-            next.add(c.id);
-          }
+        // Find all courses up to this semester
+        const coursesUpToSem = gridCourses.filter((c) => (plannedSemesters[c.id] || c.semester) <= sem);
+        for (const c of coursesUpToSem) {
+          next.add(c.id);
         }
       }
-      persist(next);
+      persist(next, undefined);
     },
-    [approved, persist, courses]
+    [approved, persist, courses, gridCourses, plannedSemesters]
   );
 
   const markYear = useCallback(
@@ -490,7 +520,10 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
       const s1 = year * 2 - 1;
       const s2 = year * 2;
       const next = new Set(approved);
-      const yearCourses = courses.filter((c) => c.semester === s1 || c.semester === s2);
+      const yearCourses = gridCourses.filter((c) => {
+        const s = plannedSemesters[c.id] || c.semester;
+        return s === s1 || s === s2;
+      });
       const allApproved = yearCourses.every((c) => next.has(c.id));
       if (allApproved) {
         for (const c of yearCourses) {
@@ -499,18 +532,17 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
           for (const d of deps) next.delete(d);
         }
       } else {
-        for (let s = 1; s <= s2; s++) {
-          for (const c of courses.filter((x) => x.semester === s)) {
-            next.add(c.id);
-          }
+        const coursesUpToSem = gridCourses.filter((c) => (plannedSemesters[c.id] || c.semester) <= s2);
+        for (const c of coursesUpToSem) {
+          next.add(c.id);
         }
       }
-      persist(next);
+      persist(next, undefined);
     },
-    [approved, persist, courses]
+    [approved, persist, courses, gridCourses, plannedSemesters]
   );
 
-  const clearAll = useCallback(() => persist(new Set()), [persist]);
+  const clearAll = useCallback(() => persist(new Set(), {}), [persist]);
 
   const approvedCredits = useMemo(
     () => courses.filter((c) => approved.has(c.id)).reduce((sum, c) => sum + c.credits, 0),
@@ -535,20 +567,24 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
   const semesters = useMemo(() => {
     const map = {};
     for (let s = 1; s <= TOTAL_SEMESTERS; s++) map[s] = [];
-    for (const c of gridCourses) map[c.semester].push(c);
+    for (const c of gridCourses) {
+      const targetSem = plannedSemesters[c.id] || c.semester;
+      if (map[targetSem]) {
+        map[targetSem].push(c);
+      }
+    }
     return map;
-  }, [gridCourses, TOTAL_SEMESTERS]);
+  }, [gridCourses, TOTAL_SEMESTERS, plannedSemesters]);
 
   function isSemAllDone(sem) {
-    return gridCourses.filter((c) => c.semester === sem).every((c) => approved.has(c.id));
+    return semesters[sem] && semesters[sem].length > 0 && semesters[sem].every((c) => approved.has(c.id));
   }
 
   function isYearAllDone(year) {
     const s1 = year * 2 - 1;
     const s2 = year * 2;
-    return gridCourses
-      .filter((c) => c.semester === s1 || c.semester === s2)
-      .every((c) => approved.has(c.id));
+    const items = [...(semesters[s1] || []), ...(semesters[s2] || [])];
+    return items.length > 0 && items.every((c) => approved.has(c.id));
   }
 
   function renderCard(course) {
@@ -563,11 +599,18 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
     let status = "locked";
     if (isApproved) status = "approved";
     else if (available) status = "available";
+    
+    const isMoved = !!plannedSemesters[course.id];
 
     return (
       <div
         key={course.id}
-        className={`card card-${status} ${isHovered ? "card-hovered" : ""} ${isPrereq ? "card-prereq-highlight" : ""} ${isDep ? "card-dep-highlight" : ""} ${dimmed ? "card-dimmed" : ""}`}
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.setData("courseId", course.id);
+          e.dataTransfer.effectAllowed = "move";
+        }}
+        className={`card card-${status} ${isMoved ? "card-moved" : ""} ${isHovered ? "card-hovered" : ""} ${isPrereq ? "card-prereq-highlight" : ""} ${isDep ? "card-dep-highlight" : ""} ${dimmed ? "card-dimmed" : ""}`}
         style={{ "--cat-color": cat.color }}
         onClick={() => toggleCourse(course)}
         onMouseEnter={() => setHovered(course.id)}
@@ -648,7 +691,14 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
         <div className="dashboard-header">
           <div className="dashboard-left">
             <h2 className="dashboard-title">{careerConfig.name}</h2>
-            <p className="dashboard-subtitle">Selecciona asignaturas para marcarlas como aprobadas</p>
+            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+              <p className="dashboard-subtitle">Arrastra los ramos para organizar tus semestres.</p>
+              {Object.keys(plannedSemesters).length > 0 && (
+                <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={resetPlanning}>
+                  Restablecer orden
+                </button>
+              )}
+            </div>
           </div>
           <div className="dashboard-right">
             <div className="progress-inline">
@@ -694,7 +744,16 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
             </div>
             <div className="malla-grid" style={{ gridTemplateColumns: `repeat(${TOTAL_SEMESTERS}, minmax(110px, 1fr))` }}>
               {Array.from({ length: TOTAL_SEMESTERS }, (_, i) => i + 1).map((sem) => (
-                <div className="semester-col" key={sem}>
+                <div 
+                  className="semester-col" 
+                  key={sem}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const courseId = e.dataTransfer.getData("courseId");
+                    if (courseId) moveCourse(courseId, sem);
+                  }}
+                >
                   <button
                     className={`semester-btn ${isSemAllDone(sem) ? "semester-btn-active" : ""}`}
                     onClick={() => markSemester(sem)}
@@ -702,7 +761,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
                     Sem {ROMAN[sem]}
                   </button>
                   <div className="semester-cards">
-                    {semesters[sem].map((course) => renderCard(course))}
+                    {semesters[sem] && semesters[sem].map((course) => renderCard(course))}
                   </div>
                 </div>
               ))}

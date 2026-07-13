@@ -1703,6 +1703,55 @@ body {
   align-items: center;
 }
 
+/* ── Markers Toolbar ── */
+.marker-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.marker-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.marker-btn .material-symbols-outlined {
+  font-size: 14px;
+  color: var(--marker-color);
+}
+
+.marker-btn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.marker-btn.active {
+  background: rgba(var(--marker-color-rgb), 0.15); /* This would need rgb vars, so let's just use box-shadow/border */
+  border-color: var(--marker-color);
+  color: var(--text-primary);
+  box-shadow: 0 0 8px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.3);
+}
+.marker-btn.active .material-symbols-outlined {
+  filter: drop-shadow(0 0 4px var(--marker-color));
+}
+
+/* ── Card: Moved (Drag & Drop) ── */
+.card-moved {
+  outline: 2px dashed rgba(255, 255, 255, 0.4);
+  outline-offset: -2px;
+}
+
 .malla-footer-career {
   position: absolute;
   left: 50%;
