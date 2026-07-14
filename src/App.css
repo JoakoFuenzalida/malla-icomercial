@@ -1882,4 +1882,37 @@ body {
     width: 100%;
     max-width: 250px;
   }
+
+  /* Tutorial Responsivo */
+  .tutorial-modal {
+    padding: 2rem 1rem;
+    width: 95%;
+  }
+
+  .tut-intro-stage {
+    transform: scale(0.65);
+    transform-origin: top center;
+    margin-bottom: -60px;
+  }
+
+  .tut-demo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .tut-demo-col {
+    width: calc(50% - 0.5rem);
+  }
+}
+
+@media (max-width: 450px) {
+  .tut-intro-stage {
+    transform: scale(0.5);
+    margin-bottom: -90px;
+  }
+  .tut-demo-col {
+    width: 100%; /* Una columna en pantallas muy pequeñas para el demo */
+  }
 }
