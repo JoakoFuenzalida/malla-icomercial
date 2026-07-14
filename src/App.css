@@ -37,12 +37,14 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* - Header (Top Nav) - */
@@ -1648,6 +1650,19 @@ body {
   z-index: 4;
 }
 
+.career-feature-icon {
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+.pc-recommendation {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  font-style: italic;
+}
+
 /* - Career Disclaimer - */
 .career-disclaimer {
   font-size: 0.68rem;
@@ -1755,6 +1770,7 @@ body {
 /* - Mode Toggle - */
 .mode-toggle-wrapper {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
   margin-top: 0.5rem;

@@ -72,8 +72,9 @@ function TutorialIntro({ onNext, onSkip }) {
       <h2 className="tutorial-title">Bienvenido a la Malla Interactiva</h2>
       <p className="tutorial-desc">Cada asignatura se representa con un recuadro como este. Pasa el mouse por las etiquetas o el recuadro para descubrir cada elemento.</p>
 
-      <div className="tut-intro-stage">
-        <div
+      <div className="tut-stage-wrapper">
+        <div className="tut-intro-stage">
+          <div
           className={`tut-intro-label tut-intro-label-left ${active === "sigla" ? "is-active" : ""}`}
           style={{ top: 78 }}
           onMouseEnter={() => setActive("sigla")}
@@ -172,6 +173,7 @@ function TutorialIntro({ onNext, onSkip }) {
             );
           })}
         </svg>
+        </div>
       </div>
 
       <div className="tut-info-box">
@@ -284,7 +286,7 @@ function TutorialRuta({ onNext, onBack }) {
               <span className="tut-demo-cr">4 cr</span>
             </div>
           </div>
-          <span className="tut-demo-label tut-demo-label-dim">Atenuado</span>
+          <span className="tut-demo-label">Atenuado</span>
         </div>
       </div>
 
@@ -398,6 +400,10 @@ function CareerSelector({ onSelect }) {
             <span>Descubre qué ramos se desbloquean</span>
           </div>
         </div>
+
+        <p className="pc-recommendation">
+          Para una mejor experiencia visual, te recomendamos visitar esta página desde un computador.
+        </p>
       </div>
       <p className="career-disclaimer">
         Este sitio no es una página oficial de la Pontificia Universidad Católica de Valparaíso ni está afiliado a ella de ninguna forma. Es un proyecto independiente creado por estudiantes con fines informativos y de apoyo académico. La información de las mallas curriculares puede contener errores, estar incompleta o desactualizada. Para información oficial, consulta siempre los canales institucionales de la universidad.
@@ -416,7 +422,7 @@ function CareerSelector({ onSelect }) {
             </a>
           </div>
           <span className="footer-copy">
-            Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Joaquín Fuenzalida</a>, Estudiante Ing. Civil Informática PUCV
+            Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Estudiante Ing. Civil Informática PUCV</a>
           </span>
         </div>
       </footer>
@@ -878,7 +884,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
           </div>
           <span className="footer-copy malla-footer-career">{careerConfig.name} PUCV</span>
           <span className="footer-copy">
-            Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Joaquín Fuenzalida</a>, Estudiante Ing. Civil Informática PUCV
+            Hecho por <a href="https://github.com/JoakoFuenzalida" target="_blank" rel="noopener noreferrer" className="footer-link">Estudiante Ing. Civil Informática PUCV</a>
             <button className="easter-trigger" onClick={() => setShowEaster(true)} aria-label="Easter egg">♥</button>
           </span>
         </div>
