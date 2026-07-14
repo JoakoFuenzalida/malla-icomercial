@@ -1929,32 +1929,35 @@ body {
   .tutorial-modal {
     padding: 2rem 1rem;
     width: 95%;
+    max-height: 95vh;
+  }
+
+  .tut-stage-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1rem;
   }
 
   .tut-intro-stage {
-    transform: scale(0.65);
-    transform-origin: top center;
-    margin-bottom: -60px;
+    min-width: 600px;
+    transform: none;
+    margin: 0.5rem auto;
   }
 
   .tut-demo-grid {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    padding-bottom: 1rem;
+    gap: 1.5rem;
   }
 
   .tut-demo-col {
-    width: calc(50% - 0.5rem);
-  }
-}
-
-@media (max-width: 450px) {
-  .tut-intro-stage {
-    transform: scale(0.5);
-    margin-bottom: -90px;
-  }
-  .tut-demo-col {
-    width: 100%; /* Una columna en pantallas muy pequeñas para el demo */
+    min-width: 140px;
+    width: 140px;
+    flex-shrink: 0;
   }
 }
