@@ -186,7 +186,7 @@ function TutorialIntro({ onNext, onSkip }) {
   );
 }
 
-function TutorialRuta({ onClose, onBack }) {
+function TutorialRuta({ onNext, onBack }) {
   const [highlighted, setHighlighted] = useState(false);
 
   useEffect(() => {
@@ -290,6 +290,60 @@ function TutorialRuta({ onClose, onBack }) {
 
       <div className="tut-info-box">
         <p>Al pasar el mouse por un ramo, se resaltan sus <strong className="tut-text-gold">prerrequisitos </strong> y <strong className="tut-text-blue">dependientes </strong>. Los aprobados se muestran tachados. Los no relacionados se atenúan.</p>
+      </div>
+
+      <div className="tutorial-nav">
+        <button className="tutorial-btn tut-btn-rounded" onClick={onNext}>Siguiente</button>
+        <button className="tutorial-skip" onClick={onBack}>Volver</button>
+      </div>
+    </>
+  );
+}
+
+function TutorialDragDrop({ onClose, onBack }) {
+  const [highlighted, setHighlighted] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHighlighted(true);
+      const timeout = setTimeout(() => setHighlighted(false), 2000);
+      return () => clearTimeout(timeout);
+    }, 4000);
+    setHighlighted(true);
+    const firstTimeout = setTimeout(() => setHighlighted(false), 2000);
+    return () => { clearInterval(interval); clearTimeout(firstTimeout); };
+  }, []);
+
+  return (
+    <>
+      <span className="tut-step-label">Paso 3 de 3</span>
+      <h2 className="tutorial-title">Mi Planificador</h2>
+      <p className="tutorial-desc">Arrastra y suelta ramos entre semestres para armar tu horario ideal.</p>
+
+      <div className="tut-demo-grid" style={{ gap: '2rem', padding: '1.5rem 0', justifyContent: 'center' }}>
+        <div className="tut-demo-col" style={{ alignItems: 'center' }}>
+          <span className="tut-demo-label" style={{ marginBottom: 8 }}>Semestre 3</span>
+          <div className={`tut-demo-card tut-drag-anim ${highlighted ? "dragging" : ""}`} style={{ "--cat-color": "#4f46e5", zIndex: 10, position: 'relative' }}>
+            <div className="tut-demo-top">
+              <span className="tut-demo-code">RAMO X</span>
+            </div>
+            <div className="tut-demo-name">Arrastrame</div>
+            <div className="tut-demo-bottom">
+              <span className="tut-demo-cr">4 cr</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="tut-demo-col" style={{ alignItems: 'center' }}>
+          <span className="tut-demo-label" style={{ marginBottom: 8 }}>Semestre 4</span>
+          <div className="tut-drop-zone">
+            Suéltalo aquí
+          </div>
+        </div>
+      </div>
+
+      <div className="tut-info-box">
+        <p>Tus cambios se guardan automáticamente. Cambia a <strong className="tut-text-gold">Malla Oficial</strong> cuando quieras ver el orden original dictado por la universidad.</p>
       </div>
 
       <div className="tutorial-nav">
@@ -411,26 +465,14 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
     }
   });
 
+  const [isPlannerMode, setIsPlannerMode] = useState(true);
   const [hovered, setHovered] = useState(null);
   const [showRoute, setShowRoute] = useState(false);
   const [showEaster, setShowEaster] = useState(false);
   const rutaBtnRef = useRef(null);
+  const modeToggleRef = useRef(null);
   const [rutaBtnRect, setRutaBtnRect] = useState(null);
-
-  useEffect(() => {
-    if (!rutaBtnRef.current) return;
-    function updateRect() {
-      const r = rutaBtnRef.current?.getBoundingClientRect();
-      if (r) setRutaBtnRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-    }
-    updateRect();
-    window.addEventListener("resize", updateRect);
-    window.addEventListener("scroll", updateRect);
-    return () => {
-      window.removeEventListener("resize", updateRect);
-      window.removeEventListener("scroll", updateRect);
-    };
-  }, []);
+  const [modeToggleRect, setModeToggleRect] = useState(null);
 
   const [tutorialStep, setTutorialStep] = useState(() => {
     try {
@@ -439,6 +481,26 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
       return 0;
     }
   });
+
+  useEffect(() => {
+    function updateRect() {
+      if (rutaBtnRef.current) {
+        const r = rutaBtnRef.current.getBoundingClientRect();
+        setRutaBtnRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+      }
+      if (modeToggleRef.current) {
+        const m = modeToggleRef.current.getBoundingClientRect();
+        setModeToggleRect({ top: m.top, left: m.left, width: m.width, height: m.height });
+      }
+    }
+    setTimeout(updateRect, 100);
+    window.addEventListener("resize", updateRect);
+    window.addEventListener("scroll", updateRect);
+    return () => {
+      window.removeEventListener("resize", updateRect);
+      window.removeEventListener("scroll", updateRect);
+    };
+  }, [tutorialStep]);
 
   const closeTutorial = useCallback(() => {
     setTutorialStep(-1);
@@ -568,13 +630,13 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
     const map = {};
     for (let s = 1; s <= TOTAL_SEMESTERS; s++) map[s] = [];
     for (const c of gridCourses) {
-      const targetSem = plannedSemesters[c.id] || c.semester;
+      const targetSem = isPlannerMode ? (plannedSemesters[c.id] || c.semester) : c.semester;
       if (map[targetSem]) {
         map[targetSem].push(c);
       }
     }
     return map;
-  }, [gridCourses, TOTAL_SEMESTERS, plannedSemesters]);
+  }, [gridCourses, TOTAL_SEMESTERS, plannedSemesters, isPlannerMode]);
 
   function isSemAllDone(sem) {
     return semesters[sem] && semesters[sem].length > 0 && semesters[sem].every((c) => approved.has(c.id));
@@ -605,12 +667,16 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
     return (
       <div
         key={course.id}
-        draggable
+        draggable={isPlannerMode}
         onDragStart={(e) => {
+          if (!isPlannerMode) {
+            e.preventDefault();
+            return;
+          }
           e.dataTransfer.setData("courseId", course.id);
           e.dataTransfer.effectAllowed = "move";
         }}
-        className={`card card-${status} ${isMoved ? "card-moved" : ""} ${isHovered ? "card-hovered" : ""} ${isPrereq ? "card-prereq-highlight" : ""} ${isDep ? "card-dep-highlight" : ""} ${dimmed ? "card-dimmed" : ""}`}
+        className={`card card-${status} ${(isMoved && isPlannerMode) ? "card-moved" : ""} ${isHovered ? "card-hovered" : ""} ${isPrereq ? "card-prereq-highlight" : ""} ${isDep ? "card-dep-highlight" : ""} ${dimmed ? "card-dimmed" : ""}`}
         style={{ "--cat-color": cat.color }}
         onClick={() => toggleCourse(course)}
         onMouseEnter={() => setHovered(course.id)}
@@ -691,9 +757,22 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
         <div className="dashboard-header">
           <div className="dashboard-left">
             <h2 className="dashboard-title">{careerConfig.name}</h2>
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              <p className="dashboard-subtitle">Arrastra los ramos para organizar tus semestres.</p>
-              {Object.keys(plannedSemesters).length > 0 && (
+            <div className="mode-toggle-wrapper">
+              <div className="mode-toggle" ref={modeToggleRef}>
+                <button className={`mode-toggle-btn ${!isPlannerMode ? 'active' : ''}`} onClick={() => setIsPlannerMode(false)}>
+                  Malla Oficial
+                </button>
+                <button className={`mode-toggle-btn ${isPlannerMode ? 'active' : ''}`} onClick={() => {
+                  setIsPlannerMode(true);
+                  if (tutorialStep === 2) {
+                     setTutorialStep(-1);
+                     localStorage.setItem("malla-tutorial-seen", "1");
+                  }
+                }}>
+                  Mi Planificador
+                </button>
+              </div>
+              {isPlannerMode && Object.keys(plannedSemesters).length > 0 && (
                 <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={resetPlanning}>
                   Restablecer orden
                 </button>
@@ -747,8 +826,11 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
                 <div 
                   className="semester-col" 
                   key={sem}
-                  onDragOver={(e) => e.preventDefault()}
+                  onDragOver={(e) => {
+                    if (isPlannerMode) e.preventDefault();
+                  }}
                   onDrop={(e) => {
+                    if (!isPlannerMode) return;
                     e.preventDefault();
                     const courseId = e.dataTransfer.getData("courseId");
                     if (courseId) moveCourse(courseId, sem);
@@ -838,13 +920,44 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
         </div>
       )}
 
+      {tutorialStep === 2 && modeToggleRect && (
+        <div
+          className="tutorial-ruta-highlight"
+          style={{
+            top: modeToggleRect.top,
+            left: modeToggleRect.left,
+            width: modeToggleRect.width,
+            height: modeToggleRect.height,
+            borderRadius: '99px'
+          }}
+        >
+          <div className="mode-toggle" style={{ margin: 0 }}>
+            <button className={`mode-toggle-btn ${!isPlannerMode ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setIsPlannerMode(false); }}>
+              Malla Oficial
+            </button>
+            <button className={`mode-toggle-btn ${isPlannerMode ? 'active' : ''}`} onClick={(e) => { 
+              e.stopPropagation(); 
+              setIsPlannerMode(true); 
+              setTutorialStep(-1);
+              localStorage.setItem("malla-tutorial-seen", "1");
+            }}>
+              Mi Planificador
+            </button>
+          </div>
+          <div className="tutorial-arrow-indicator" style={{ top: '120%', left: '20%' }}>
+            <span className="tutorial-arrow-text">¡Pruébalo ahora! Haz click aquí</span>
+          </div>
+        </div>
+      )}
+
       {tutorialStep >= 0 && (
         <div className="tutorial-overlay" onClick={closeTutorial}>
           <div className="tutorial-modal" onClick={(e) => e.stopPropagation()}>
             {tutorialStep === 0 && (
               <TutorialIntro onNext={() => setTutorialStep(1)} onSkip={closeTutorial} />
             )}
-            {tutorialStep === 1 && <TutorialRuta onClose={closeTutorial} onBack={() => setTutorialStep(0)} />}
+            {tutorialStep === 1 && <TutorialRuta onNext={() => setTutorialStep(2)} onBack={() => setTutorialStep(0)} />}
+            {tutorialStep === 2 && <TutorialDragDrop onClose={closeTutorial} onBack={() => setTutorialStep(1)} />}
           </div>
         </div>
       )}

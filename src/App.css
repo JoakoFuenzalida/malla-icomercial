@@ -1,4 +1,4 @@
-/* ── Reset & Base ── */
+/* - Reset & Base - */
 *,
 *::before,
 *::after {
@@ -45,7 +45,7 @@ body {
   flex-direction: column;
 }
 
-/* ── Header (Top Nav) ── */
+/* - Header (Top Nav) - */
 .header {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
@@ -79,7 +79,7 @@ body {
   align-items: center;
 }
 
-/* ── Main Content ── */
+/* - Main Content - */
 .main-content {
   flex: 1;
   max-width: 1400px;
@@ -91,7 +91,7 @@ body {
   gap: 1rem;
 }
 
-/* ── Dashboard Header ── */
+/* - Dashboard Header - */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -133,7 +133,7 @@ body {
   gap: 0.35rem;
 }
 
-/* ── Legend (pill bar) ── */
+/* - Legend (pill bar) - */
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -166,7 +166,7 @@ body {
   white-space: nowrap;
 }
 
-/* ── Malla Scroll Container ── */
+/* - Malla Scroll Container - */
 .malla-scroll {
   overflow-x: auto;
   padding-bottom: 0.25rem;
@@ -179,7 +179,7 @@ body {
   min-width: fit-content;
 }
 
-/* ── Year Row ── */
+/* - Year Row - */
 .year-row {
   display: grid;
   gap: var(--col-gap);
@@ -218,13 +218,13 @@ body {
   background: var(--accent-hover);
 }
 
-/* ── Malla Grid ── */
+/* - Malla Grid - */
 .malla-grid {
   display: grid;
   gap: var(--col-gap);
 }
 
-/* ── Semester Column ── */
+/* - Semester Column - */
 .semester-col {
   display: flex;
   flex-direction: column;
@@ -268,7 +268,7 @@ body {
   gap: 6px;
 }
 
-/* ── Course Card ── */
+/* - Course Card - */
 .card {
   background: var(--cat-color);
   border-radius: var(--radius);
@@ -373,7 +373,7 @@ body {
   color: var(--text-muted);
 }
 
-/* ── Card: Approved (diagonal red line) ── */
+/* - Card: Approved (diagonal red line) - */
 .card-approved {
   animation: approvedPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -400,7 +400,7 @@ body {
   100% { transform: scale(1); }
 }
 
-/* ── Card: Locked ── */
+/* - Card: Locked - */
 .card-locked {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border);
@@ -429,7 +429,7 @@ body {
   font-size: 1rem;
 }
 
-/* ── Hover Highlights ── */
+/* - Hover Highlights - */
 .card-hovered {
   transform: translateY(-3px) scale(1.03);
   box-shadow: var(--shadow-hover);
@@ -461,7 +461,7 @@ body {
   filter: grayscale(0.7);
 }
 
-/* ── Optativos Section ── */
+/* - Optativos Section - */
 .optativos-section {
   padding: 0;
   margin-top: 1rem;
@@ -502,7 +502,7 @@ body {
   min-height: 44px;
 }
 
-/* ── Progress Bar ── */
+/* - Progress Bar - */
 .progress-info {
   display: flex;
   align-items: center;
@@ -551,7 +551,7 @@ body {
   );
 }
 
-/* ── Buttons ── */
+/* - Buttons - */
 .btn {
   border: 1px solid var(--border);
   background: transparent;
@@ -601,7 +601,7 @@ body {
   border-color: var(--accent);
 }
 
-/* ── Tooltip ── */
+/* - Tooltip - */
 .tooltip-wrapper {
   position: relative;
 }
@@ -637,7 +637,7 @@ body {
   border-color: #991b1b;
 }
 
-/* ── Footer ── */
+/* - Footer - */
 .footer {
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
@@ -674,7 +674,7 @@ body {
   color: var(--text-primary);
 }
 
-/* ── Help Button ── */
+/* - Help Button - */
 .btn-help {
   width: 28px;
   height: 28px;
@@ -694,7 +694,7 @@ body {
   background: var(--bg-elevated);
 }
 
-/* ── Tutorial ── */
+/* - Tutorial - */
 .tutorial-overlay {
   position: fixed;
   inset: 0;
@@ -1312,7 +1312,7 @@ body {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
-/* ── Easter Egg ── */
+/* - Easter Egg - */
 .easter-trigger {
   background: none;
   border: none;
@@ -1436,7 +1436,7 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* ── Header Home Link ── */
+/* - Header Home Link - */
 .header-home {
   background: none;
   border: none;
@@ -1451,7 +1451,7 @@ body {
   opacity: 0.7;
 }
 
-/* ── Dropdown Carreras ── */
+/* - Dropdown Carreras - */
 .dropdown-wrapper {
   position: relative;
 }
@@ -1511,7 +1511,7 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* ── Career Selector ── */
+/* - Career Selector - */
 .career-page {
   justify-content: center;
   align-items: center;
@@ -1648,7 +1648,7 @@ body {
   z-index: 4;
 }
 
-/* ── Career Disclaimer ── */
+/* - Career Disclaimer - */
 .career-disclaimer {
   font-size: 0.68rem;
   color: var(--text-muted);
@@ -1660,7 +1660,7 @@ body {
   padding: 0 2rem 1.25rem;
 }
 
-/* ── Career Footer ── */
+/* - Career Footer - */
 .career-footer {
   width: 100%;
 }
@@ -1696,14 +1696,14 @@ body {
   font-size: 0.7rem;
 }
 
-/* ── Malla Footer (3 columns) ── */
+/* - Malla Footer (3 columns) - */
 .malla-footer .footer-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* ── Markers Toolbar ── */
+/* - Markers Toolbar - */
 .marker-toolbar {
   display: flex;
   gap: 0.5rem;
@@ -1746,10 +1746,75 @@ body {
   filter: drop-shadow(0 0 4px var(--marker-color));
 }
 
-/* ── Card: Moved (Drag & Drop) ── */
+/* - Card: Moved (Drag & Drop) - */
 .card-moved {
   outline: 2px dashed rgba(255, 255, 255, 0.4);
   outline-offset: -2px;
+}
+
+/* - Mode Toggle - */
+.mode-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.mode-toggle {
+  display: inline-flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 2px;
+}
+
+.mode-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.mode-toggle-btn.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* - Tutorial Drag & Drop - */
+.tut-drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  width: 100px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@keyframes dragDropDemo {
+  0% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(0, 0) scale(1.05) rotate(-3deg); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+  60% { transform: translate(140px, 0) scale(1.05) rotate(3deg); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+  80% { transform: translate(140px, 0) scale(1) rotate(0); box-shadow: 0 4px 6px rgba(0,0,0,0.3); outline: 2px dashed rgba(255,255,255,0.4); }
+  100% { transform: translate(140px, 0) scale(1); }
+}
+
+.tut-drag-anim {
+  animation: dragDropDemo 4s infinite;
 }
 
 .malla-footer-career {
@@ -1760,7 +1825,7 @@ body {
   color: var(--text-secondary) !important;
 }
 
-/* ── Responsive ── */
+/* - Responsive - */
 @media (max-width: 768px) {
   .header-text h1 {
     font-size: 0.85rem;
