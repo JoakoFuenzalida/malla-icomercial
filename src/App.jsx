@@ -431,7 +431,7 @@ function CareerSelector({ onSelect }) {
   );
 }
 
-function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyData }) {
+function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyData, sharedPlanId }) {
   const { courses, categories, TOTAL_CREDITS, TOTAL_SEMESTERS } = careerConfig.data;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -831,8 +831,8 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
       <main className="main-content">
         {isReadOnly && (
           <div className="readonly-banner">
-            <span>Estás viendo una planificación compartida (Modo Solo Lectura).</span>
-            <button className="btn btn-route" onClick={onGoHome} style={{ marginLeft: '1rem' }}>Volver al Inicio</button>
+            <span>Estás viendo una planificación compartida de <strong>{sharedPlanId}</strong> (Modo Solo Lectura).</span>
+            <button className="btn" onClick={onGoHome} style={{ marginLeft: '1rem', backgroundColor: 'white', color: 'var(--accent)', borderColor: 'white', fontWeight: 'bold' }}>Volver al Inicio</button>
           </div>
         )}
         <div className="dashboard-header">
@@ -1122,6 +1122,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
 export default function App() {
   const [careerKey, setCareerKey] = useState(() => localStorage.getItem("malla-career") || null);
   const [sharedPlanData, setSharedPlanData] = useState(null);
+  const [sharedPlanId, setSharedPlanId] = useState(null);
   const [isLoadingShared, setIsLoadingShared] = useState(false);
   const [sharedError, setSharedError] = useState(null);
 
@@ -1135,6 +1136,7 @@ export default function App() {
         .then(data => {
           if (data && data.careerKey) {
             setSharedPlanData(data);
+            setSharedPlanId(planId);
             setCareerKey(data.careerKey);
           } else {
             setSharedError("Plan no encontrado o el link es inválido.");
@@ -1201,6 +1203,7 @@ export default function App() {
         }
       }}
       readOnlyData={sharedPlanData}
+      sharedPlanId={sharedPlanId}
     />
   );
 }
