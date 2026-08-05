@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import * as icomData from "./data/courses";
 import * as iciData from "./data/ici-courses";
+import html2canvas from "html2canvas";
 import "./App.css";
 
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
@@ -430,7 +431,7 @@ function CareerSelector({ onSelect }) {
   );
 }
 
-function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
+function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyData }) {
   const { courses, categories, TOTAL_CREDITS, TOTAL_SEMESTERS } = careerConfig.data;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -454,6 +455,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
   const numYears = Math.ceil(TOTAL_SEMESTERS / 2);
 
   const [approved, setApproved] = useState(() => {
+    if (readOnlyData) return new Set(readOnlyData.approved);
     try {
       const saved = localStorage.getItem(`malla-${careerKey}-approved`);
       return saved ? new Set(JSON.parse(saved)) : new Set();
@@ -463,6 +465,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
   });
   
   const [plannedSemesters, setPlannedSemesters] = useState(() => {
+    if (readOnlyData) return readOnlyData.plannedSemesters || {};
     try {
       const saved = localStorage.getItem(`malla-${careerKey}-planned`);
       return saved ? JSON.parse(saved) : {};
@@ -471,6 +474,10 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
     }
   });
 
+  const isReadOnly = !!readOnlyData;
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareId, setShareId] = useState("");
+  const [shareStatus, setShareStatus] = useState(null); // null, 'loading', 'success', 'error'
   const [isPlannerMode, setIsPlannerMode] = useState(true);
   const [hovered, setHovered] = useState(null);
   const [showRoute, setShowRoute] = useState(false);
@@ -516,6 +523,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
   const openTutorial = useCallback(() => setTutorialStep(0), []);
 
   const persist = useCallback((nextApproved, nextPlanned) => {
+    if (isReadOnly) return;
     if (nextApproved !== undefined) {
       setApproved(nextApproved);
       localStorage.setItem(`malla-${careerKey}-approved`, JSON.stringify([...nextApproved]));
@@ -524,7 +532,47 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
       setPlannedSemesters(nextPlanned);
       localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(nextPlanned));
     }
-  }, [careerKey]);
+  }, [careerKey, isReadOnly]);
+
+  const handleExportImage = async () => {
+    const element = document.querySelector(".malla-scroll");
+    if (!element) return;
+    try {
+      const canvas = await html2canvas(element, { backgroundColor: "#0f172a", scale: 2 });
+      const link = document.createElement("a");
+      link.download = `planificacion-${careerKey}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (e) {
+      console.error("Error al exportar imagen", e);
+      alert("Hubo un error al exportar la imagen.");
+    }
+  };
+
+  const handleShare = async () => {
+    if (!shareId.trim()) return;
+    setShareStatus("loading");
+    try {
+      const res = await fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: shareId,
+          careerKey,
+          approved: [...approved],
+          plannedSemesters
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShareStatus("success");
+      } else {
+        setShareStatus("error");
+      }
+    } catch (e) {
+      setShareStatus("error");
+    }
+  };
 
   const isAvailable = useCallback(
     (course) => course.prerequisites.every((p) => approved.has(p)),
@@ -755,11 +803,27 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
               Limpiar todo
             </button>
             <button className="btn btn-help" onClick={openTutorial} title="Ver tutorial">?</button>
+            <button className="btn btn-clear" style={{ backgroundColor: '#2563eb', color: 'white', borderColor: '#2563eb' }} onClick={handleExportImage}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>image</span>
+              Pantallazo
+            </button>
+            {!isReadOnly && (
+              <button className="btn btn-clear" style={{ backgroundColor: '#16a34a', color: 'white', borderColor: '#16a34a' }} onClick={() => { setShareModalOpen(true); setShareStatus(null); }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>share</span>
+                Compartir
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="main-content">
+        {isReadOnly && (
+          <div className="readonly-banner">
+            <span>Estás viendo una planificación compartida (Modo Solo Lectura).</span>
+            <button className="btn btn-route" onClick={onGoHome} style={{ marginLeft: '1rem' }}>Volver al Inicio</button>
+          </div>
+        )}
         <div className="dashboard-header">
           <div className="dashboard-left">
             <h2 className="dashboard-title">{careerConfig.name}</h2>
@@ -956,6 +1020,61 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
         </div>
       )}
 
+      {shareModalOpen && (
+        <div className="tutorial-overlay" onClick={() => setShareModalOpen(false)}>
+          <div className="tutorial-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="tutorial-title">Compartir Planificación</h2>
+            <p className="tutorial-desc">Escribe un nombre personalizado para tu enlace. Por ejemplo: <b>sofi</b> creará el link <i>{window.location.origin}/?plan=sofi</i></p>
+            
+            {shareStatus !== "success" ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                <input 
+                  type="text" 
+                  value={shareId} 
+                  onChange={(e) => setShareId(e.target.value)} 
+                  placeholder="Ej: sofi-2025"
+                  className="share-input"
+                  autoFocus
+                />
+                <button 
+                  className="tutorial-btn tut-btn-rounded" 
+                  onClick={handleShare}
+                  disabled={shareStatus === "loading" || !shareId.trim()}
+                  style={{ width: '100%', justifyContent: 'center', margin: 0 }}
+                >
+                  {shareStatus === "loading" ? "Guardando..." : "Generar Link"}
+                </button>
+                {shareStatus === "error" && <p style={{ color: '#ef4444', fontSize: '0.9rem', margin: 0 }}>Hubo un error al guardar. Intenta con otro nombre.</p>}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                <div className="share-success-box">
+                  ¡Link generado con éxito!
+                </div>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={`${window.location.origin}/?plan=${shareId.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')}`} 
+                  className="share-input"
+                  onClick={(e) => e.target.select()}
+                />
+                <button 
+                  className="tutorial-btn tut-btn-rounded" 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/?plan=${shareId.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')}`);
+                    alert("¡Copiado al portapapeles!");
+                  }}
+                  style={{ width: '100%', justifyContent: 'center', margin: 0 }}
+                >
+                  Copiar Link
+                </button>
+              </div>
+            )}
+            <button className="tutorial-skip" onClick={() => setShareModalOpen(false)} style={{ marginTop: '1rem', width: '100%' }}>Cerrar</button>
+          </div>
+        </div>
+      )}
+
       {tutorialStep >= 0 && (
         <div className="tutorial-overlay" onClick={closeTutorial}>
           <div className="tutorial-modal" onClick={(e) => e.stopPropagation()}>
@@ -973,6 +1092,29 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome }) {
 
 export default function App() {
   const [careerKey, setCareerKey] = useState(() => localStorage.getItem("malla-career") || null);
+  const [sharedPlanData, setSharedPlanData] = useState(null);
+  const [isLoadingShared, setIsLoadingShared] = useState(false);
+  const [sharedError, setSharedError] = useState(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planId = params.get("plan");
+    if (planId) {
+      setIsLoadingShared(true);
+      fetch(`/api/load?id=${planId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.careerKey) {
+            setSharedPlanData(data);
+            setCareerKey(data.careerKey);
+          } else {
+            setSharedError("Plan no encontrado o el link es inválido.");
+          }
+        })
+        .catch(() => setSharedError("Error al cargar la planificación compartida."))
+        .finally(() => setIsLoadingShared(false));
+    }
+  }, []);
 
   useEffect(() => {
     const oldData = localStorage.getItem("malla-approved");
@@ -992,6 +1134,26 @@ export default function App() {
     setCareerKey(null);
   }, []);
 
+  if (isLoadingShared) {
+    return (
+      <div className="app career-page">
+        <h1 className="career-main-title">Cargando planificación...</h1>
+      </div>
+    );
+  }
+
+  if (sharedError) {
+    return (
+      <div className="app career-page">
+        <h1 className="career-main-title">Lo sentimos</h1>
+        <p className="career-subtitle">{sharedError}</p>
+        <button className="btn btn-route" onClick={() => { window.location.href = "/"; }} style={{ marginTop: '2rem' }}>
+          Volver al Inicio
+        </button>
+      </div>
+    );
+  }
+
   if (!careerKey || !CAREERS[careerKey]) {
     return <CareerSelector onSelect={selectCareer} />;
   }
@@ -1002,7 +1164,14 @@ export default function App() {
       careerKey={careerKey}
       careerConfig={CAREERS[careerKey]}
       onSelectCareer={selectCareer}
-      onGoHome={goHome}
+      onGoHome={() => {
+        if (sharedPlanData) {
+          window.location.href = "/";
+        } else {
+          goHome();
+        }
+      }}
+      readOnlyData={sharedPlanData}
     />
   );
 }
