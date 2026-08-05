@@ -535,7 +535,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
   }, [careerKey, isReadOnly]);
 
   const handleExportImage = async () => {
-    const element = document.querySelector(".malla-scroll");
+    const element = document.querySelector(".main-content");
     if (!element) return;
     try {
       const canvas = await html2canvas(element, { backgroundColor: "#0f172a", scale: 2 });
@@ -597,7 +597,12 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
 
   const moveCourse = useCallback((courseId, targetSemester) => {
     setPlannedSemesters(prev => {
-      const next = { ...prev, [courseId]: targetSemester };
+      const next = { ...prev };
+      if (targetSemester) {
+        next[courseId] = targetSemester;
+      } else {
+        delete next[courseId];
+      }
       localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(next));
       return next;
     });
@@ -611,7 +616,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
   const markSemester = useCallback(
     (sem) => {
       const next = new Set(approved);
-      const semCourses = gridCourses.filter((c) => (plannedSemesters[c.id] || c.semester) === sem);
+      const semCourses = courses.filter((c) => (plannedSemesters[c.id] || c.semester) === sem);
       const allApproved = semCourses.every((c) => next.has(c.id));
       if (allApproved) {
         for (const c of semCourses) {
@@ -621,14 +626,17 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
         }
       } else {
         // Find all courses up to this semester
-        const coursesUpToSem = gridCourses.filter((c) => (plannedSemesters[c.id] || c.semester) <= sem);
+        const coursesUpToSem = courses.filter((c) => {
+          const targetSem = plannedSemesters[c.id] || c.semester;
+          return targetSem > 0 && targetSem <= sem;
+        });
         for (const c of coursesUpToSem) {
           next.add(c.id);
         }
       }
       persist(next, undefined);
     },
-    [approved, persist, courses, gridCourses, plannedSemesters]
+    [approved, persist, courses, plannedSemesters]
   );
 
   const markYear = useCallback(
@@ -636,7 +644,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
       const s1 = year * 2 - 1;
       const s2 = year * 2;
       const next = new Set(approved);
-      const yearCourses = gridCourses.filter((c) => {
+      const yearCourses = courses.filter((c) => {
         const s = plannedSemesters[c.id] || c.semester;
         return s === s1 || s === s2;
       });
@@ -648,14 +656,17 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
           for (const d of deps) next.delete(d);
         }
       } else {
-        const coursesUpToSem = gridCourses.filter((c) => (plannedSemesters[c.id] || c.semester) <= s2);
+        const coursesUpToSem = courses.filter((c) => {
+          const s = plannedSemesters[c.id] || c.semester;
+          return s > 0 && s <= s2;
+        });
         for (const c of coursesUpToSem) {
           next.add(c.id);
         }
       }
       persist(next, undefined);
     },
-    [approved, persist, courses, gridCourses, plannedSemesters]
+    [approved, persist, courses, plannedSemesters]
   );
 
   const clearAll = useCallback(() => persist(new Set(), {}), [persist]);
@@ -683,14 +694,14 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
   const semesters = useMemo(() => {
     const map = {};
     for (let s = 1; s <= TOTAL_SEMESTERS; s++) map[s] = [];
-    for (const c of gridCourses) {
+    for (const c of courses) {
       const targetSem = isPlannerMode ? (plannedSemesters[c.id] || c.semester) : c.semester;
-      if (map[targetSem]) {
+      if (targetSem > 0 && map[targetSem]) {
         map[targetSem].push(c);
       }
     }
     return map;
-  }, [gridCourses, TOTAL_SEMESTERS, plannedSemesters, isPlannerMode]);
+  }, [courses, TOTAL_SEMESTERS, plannedSemesters, isPlannerMode]);
 
   function isSemAllDone(sem) {
     return semesters[sem] && semesters[sem].length > 0 && semesters[sem].every((c) => approved.has(c.id));
@@ -921,16 +932,34 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
           </div>
         </div>
 
-        {optCourses.length > 0 && (
-          <div className="optativos-section">
-            <div className="optativos-header">
-              <span>Asignaturas Optativas</span>
+        {(() => {
+          const visibleOptCourses = optCourses.filter(c => !(isPlannerMode && plannedSemesters[c.id]));
+          if (visibleOptCourses.length === 0) return null;
+          return (
+            <div 
+              className="optativos-section"
+              onDragOver={(e) => {
+                if (isPlannerMode) e.preventDefault();
+              }}
+              onDrop={(e) => {
+                if (!isPlannerMode) return;
+                e.preventDefault();
+                const courseId = e.dataTransfer.getData("courseId");
+                const isOptative = optCourses.some(c => c.id === courseId);
+                if (isOptative && courseId) {
+                  moveCourse(courseId, null);
+                }
+              }}
+            >
+              <div className="optativos-header">
+                <span>Asignaturas Optativas</span>
+              </div>
+              <div className="optativos-row">
+                {visibleOptCourses.map((course) => renderCard(course))}
+              </div>
             </div>
-            <div className="optativos-row">
-              {optCourses.map((course) => renderCard(course))}
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </main>
 
       <footer className="footer malla-footer">

@@ -383,17 +383,14 @@ body {
 .card-approved::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top right,
-    transparent calc(50% - 1.5px),
-    #ef4444 calc(50% - 1.5px),
-    #ef4444 calc(50% + 1.5px),
-    transparent calc(50% + 1.5px)
-  );
+  top: 50%;
+  left: -10%;
+  right: -10%;
+  height: 2.5px;
+  background-color: #ef4444;
+  transform: translateY(-50%) rotate(-32deg);
   pointer-events: none;
   z-index: 3;
-  border-radius: var(--radius);
 }
 
 @keyframes approvedPop {
