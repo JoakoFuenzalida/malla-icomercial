@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { id, careerKey, approved, plannedSemesters } = req.body;
+    const { id, careerKey, approved, plannedSemesters, editable } = req.body;
     
     if (!id || !careerKey) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
@@ -19,6 +19,7 @@ export default async function handler(req, res) {
       careerKey,
       approved, // Array of approved course IDs
       plannedSemesters,
+      editable: !!editable,
       createdAt: Date.now()
     };
 

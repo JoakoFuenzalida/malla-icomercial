@@ -474,7 +474,9 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
     }
   });
 
-  const isReadOnly = !!readOnlyData;
+  const isShared = !!readOnlyData;
+  const isReadOnly = isShared && !readOnlyData.editable;
+  const [shareEditable, setShareEditable] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareId, setShareId] = useState("");
   const [shareStatus, setShareStatus] = useState(null); // null, 'loading', 'success', 'error'
@@ -526,13 +528,13 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
     if (isReadOnly) return;
     if (nextApproved !== undefined) {
       setApproved(nextApproved);
-      localStorage.setItem(`malla-${careerKey}-approved`, JSON.stringify([...nextApproved]));
+      if (!isShared) localStorage.setItem(`malla-${careerKey}-approved`, JSON.stringify([...nextApproved]));
     }
     if (nextPlanned !== undefined) {
       setPlannedSemesters(nextPlanned);
-      localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(nextPlanned));
+      if (!isShared) localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(nextPlanned));
     }
-  }, [careerKey, isReadOnly]);
+  }, [careerKey, isReadOnly, isShared]);
 
   const handleExportImage = async () => {
     const element = document.querySelector(".main-content");
@@ -560,7 +562,8 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
           id: shareId,
           careerKey,
           approved: [...approved],
-          plannedSemesters
+          plannedSemesters,
+          editable: shareEditable
         })
       });
       const data = await res.json();
@@ -596,6 +599,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
   );
 
   const moveCourse = useCallback((courseId, targetSemester) => {
+    if (isReadOnly) return;
     setPlannedSemesters(prev => {
       const next = { ...prev };
       if (targetSemester) {
@@ -603,10 +607,10 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
       } else {
         delete next[courseId];
       }
-      localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(next));
+      if (!isShared) localStorage.setItem(`malla-${careerKey}-planned`, JSON.stringify(next));
       return next;
     });
-  }, [careerKey]);
+  }, [careerKey, isReadOnly, isShared]);
 
   const resetPlanning = useCallback(() => {
     setPlannedSemesters({});
@@ -732,9 +736,9 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
     return (
       <div
         key={course.id}
-        draggable={isPlannerMode}
+        draggable={isPlannerMode && !isReadOnly}
         onDragStart={(e) => {
-          if (!isPlannerMode) {
+          if (!isPlannerMode || isReadOnly) {
             e.preventDefault();
             return;
           }
@@ -818,8 +822,8 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
               <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>image</span>
               Pantallazo
             </button>
-            {!isReadOnly && (
-              <button className="btn btn-clear" style={{ backgroundColor: '#16a34a', color: 'white', borderColor: '#16a34a' }} onClick={() => { setShareModalOpen(true); setShareStatus(null); }}>
+            {!isShared && (
+              <button className="btn btn-clear" style={{ backgroundColor: '#16a34a', color: 'white', borderColor: '#16a34a' }} onClick={() => { setShareModalOpen(true); setShareStatus(null); setShareEditable(false); }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle", marginRight: 2 }}>share</span>
                 Compartir
               </button>
@@ -829,9 +833,14 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
       </header>
 
       <main className="main-content">
-        {isReadOnly && (
+        {isShared && (
           <div className="readonly-banner">
-            <span>Estás viendo una planificación compartida de <strong>{sharedPlanId}</strong> (Modo Solo Lectura).</span>
+            <span>
+              {isReadOnly 
+                ? <>Estás viendo una planificación compartida de <strong>{sharedPlanId}</strong> (Modo Solo Lectura).</>
+                : <>Estás explorando la planificación compartida de <strong>{sharedPlanId}</strong>. ¡Puedes modificarla sin afectar el original!</>
+              }
+            </span>
             <button className="btn" onClick={onGoHome} style={{ marginLeft: '1rem', backgroundColor: 'white', color: 'var(--accent)', borderColor: 'white', fontWeight: 'bold' }}>Volver al Inicio</button>
           </div>
         )}
@@ -1065,6 +1074,10 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
                   className="share-input"
                   autoFocus
                 />
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--text-primary)', cursor: 'pointer', textAlign: 'left' }}>
+                  <input type="checkbox" checked={shareEditable} onChange={(e) => setShareEditable(e.target.checked)} style={{ cursor: 'pointer', accentColor: 'var(--accent)', width: '1.2rem', height: '1.2rem', flexShrink: 0 }} />
+                  Permitir que el destinatario interactúe y pruebe cambios en la malla (No afectará tu guardado original)
+                </label>
                 <button 
                   className="tutorial-btn tut-btn-rounded" 
                   onClick={handleShare}
