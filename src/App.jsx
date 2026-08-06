@@ -529,6 +529,23 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
     }
   });
 
+  const [showMobileWarning, setShowMobileWarning] = useState(() => {
+    try {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+      const seen = localStorage.getItem("malla-mobile-seen");
+      return isMobile && !seen;
+    } catch {
+      return false;
+    }
+  });
+
+  const closeMobileWarning = () => {
+    setShowMobileWarning(false);
+    try {
+      localStorage.setItem("malla-mobile-seen", "1");
+    } catch {}
+  };
+
   useEffect(() => {
     function updateRect() {
       if (rutaBtnRef.current) {
@@ -1202,6 +1219,26 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
               </div>
             )}
             <button className="tutorial-skip" onClick={() => setShareModalOpen(false)} style={{ marginTop: '1rem', width: '100%' }}>Cerrar</button>
+          </div>
+        </div>
+      )}
+
+      {showMobileWarning && (
+        <div className="tutorial-overlay" onClick={closeMobileWarning} style={{ zIndex: 9999 }}>
+          <div className="tutorial-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="tutorial-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Recomendación
+            </h2>
+            <p className="tutorial-desc">
+              Hemos detectado que nos visitas desde un dispositivo móvil. 
+              <br/><br/>
+              Aunque puedes ver la malla, te recomendamos visitar la página desde un <b>computador</b> para aprovechar todas las funcionalidades.
+            </p>
+            <div className="tutorial-nav" style={{ marginTop: '1.5rem', justifyContent: 'center' }}>
+              <button className="tutorial-btn tut-btn-rounded" onClick={closeMobileWarning} style={{ width: '100%', justifyContent: 'center', margin: 0 }}>
+                Entendido
+              </button>
+            </div>
           </div>
         </div>
       )}
