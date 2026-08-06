@@ -303,7 +303,7 @@ function TutorialRuta({ onNext, onBack }) {
   );
 }
 
-function TutorialDragDrop({ onClose, onBack }) {
+function TutorialDragDrop({ onNext, onBack }) {
   const [highlighted, setHighlighted] = useState(false);
 
   useEffect(() => {
@@ -319,7 +319,7 @@ function TutorialDragDrop({ onClose, onBack }) {
 
   return (
     <>
-      <span className="tut-step-label">Paso 3 de 3</span>
+      <span className="tut-step-label">Paso 3 de 4</span>
       <h2 className="tutorial-title">Mi Planificador</h2>
       <p className="tutorial-desc">Arrastra y suelta ramos entre semestres para armar tu horario ideal.</p>
 
@@ -350,7 +350,26 @@ function TutorialDragDrop({ onClose, onBack }) {
       </div>
 
       <div className="tutorial-nav">
-        <button className="tutorial-btn tut-btn-rounded" onClick={onClose}>Comenzar</button>
+        <button className="tutorial-btn tut-btn-rounded" onClick={onNext}>Siguiente</button>
+        <button className="tutorial-skip" onClick={onBack}>Volver</button>
+      </div>
+    </>
+  );
+}
+
+function TutorialExtraSemester({ onClose, onBack }) {
+  return (
+    <>
+      <span className="tut-step-label">Paso 4 de 4</span>
+      <h2 className="tutorial-title">Extender Malla</h2>
+      <p className="tutorial-desc">Si te atrasas o tomas menos carga académica, puedes agregar semestres extra al final de tu malla y arrastrar ramos libremente hacia ellos.</p>
+      
+      <div className="tut-info-box" style={{ marginTop: '1rem', backgroundColor: 'rgba(34, 197, 94, 0.1)', borderColor: '#22c55e', color: 'var(--text-primary)' }}>
+        <p>Busca el botón <strong style={{ color: '#22c55e' }}>+ Semestre</strong> verde a la derecha (solo visible en <strong>Mi Planificador</strong>).</p>
+      </div>
+      
+      <div className="tutorial-nav">
+        <button className="tutorial-btn tut-btn-rounded" style={{ backgroundColor: '#22c55e' }} onClick={onClose}>¡Empezar a planificar!</button>
         <button className="tutorial-skip" onClick={onBack}>Volver</button>
       </div>
     </>
@@ -497,8 +516,10 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
   const [showEaster, setShowEaster] = useState(false);
   const rutaBtnRef = useRef(null);
   const modeToggleRef = useRef(null);
+  const addSemBtnRef = useRef(null);
   const [rutaBtnRect, setRutaBtnRect] = useState(null);
   const [modeToggleRect, setModeToggleRect] = useState(null);
+  const [addSemBtnRect, setAddSemBtnRect] = useState(null);
 
   const [tutorialStep, setTutorialStep] = useState(() => {
     try {
@@ -517,6 +538,10 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
       if (modeToggleRef.current) {
         const m = modeToggleRef.current.getBoundingClientRect();
         setModeToggleRect({ top: m.top, left: m.left, width: m.width, height: m.height });
+      }
+      if (addSemBtnRef.current) {
+        const a = addSemBtnRef.current.getBoundingClientRect();
+        setAddSemBtnRect({ top: a.top, left: a.left, width: a.width, height: a.height });
       }
     }
     setTimeout(updateRect, 100);
@@ -904,7 +929,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
           <div className="dashboard-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
             {isPlannerMode && (
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap' }}>
-                <button className="btn" style={{ padding: "6px 12px", backgroundColor: "rgba(34, 197, 94, 0.15)", border: "1px solid #22c55e", color: "#22c55e", fontWeight: "600" }} onClick={handleAddSemester}>
+                <button ref={addSemBtnRef} className="btn" style={{ padding: "6px 12px", backgroundColor: "rgba(34, 197, 94, 0.15)", border: "1px solid #22c55e", color: "#22c55e", fontWeight: "600" }} onClick={handleAddSemester}>
                   + Semestre
                 </button>
                 {extraSemesters > 0 && (
@@ -1102,6 +1127,26 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
         </div>
       )}
 
+      {tutorialStep === 3 && addSemBtnRect && isPlannerMode && (
+        <div
+          className="tutorial-ruta-highlight"
+          style={{
+            top: addSemBtnRect.top,
+            left: addSemBtnRect.left,
+            width: addSemBtnRect.width,
+            height: addSemBtnRect.height,
+            borderRadius: 'var(--radius)'
+          }}
+        >
+          <button className="btn" style={{ padding: "6px 12px", backgroundColor: "rgba(34, 197, 94, 0.15)", border: "1px solid #22c55e", color: "#22c55e", fontWeight: "600", margin: 0 }} onClick={(e) => { e.stopPropagation(); handleAddSemester(); }}>
+            + Semestre
+          </button>
+          <div className="tutorial-arrow-indicator">
+            <span className="tutorial-arrow-text">Agrega semestres extras aquí</span>
+          </div>
+        </div>
+      )}
+
       {shareModalOpen && (
         <div className="tutorial-overlay" onClick={() => setShareModalOpen(false)}>
           <div className="tutorial-modal" onClick={(e) => e.stopPropagation()}>
@@ -1168,7 +1213,8 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
               <TutorialIntro onNext={() => setTutorialStep(1)} onSkip={closeTutorial} />
             )}
             {tutorialStep === 1 && <TutorialRuta onNext={() => setTutorialStep(2)} onBack={() => setTutorialStep(0)} />}
-            {tutorialStep === 2 && <TutorialDragDrop onClose={closeTutorial} onBack={() => setTutorialStep(1)} />}
+            {tutorialStep === 2 && <TutorialDragDrop onNext={() => { setTutorialStep(3); setIsPlannerMode(true); }} onBack={() => setTutorialStep(1)} />}
+            {tutorialStep === 3 && <TutorialExtraSemester onClose={closeTutorial} onBack={() => setTutorialStep(2)} />}
           </div>
         </div>
       )}
