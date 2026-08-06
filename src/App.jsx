@@ -452,8 +452,6 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
     return map;
   }, [courses]);
 
-  const numYears = Math.ceil(TOTAL_SEMESTERS / 2);
-
   const [approved, setApproved] = useState(() => {
     if (readOnlyData) return new Set(readOnlyData.approved);
     try {
@@ -473,6 +471,19 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
       return {};
     }
   });
+
+  const [extraSemesters, setExtraSemesters] = useState(() => {
+    if (readOnlyData && readOnlyData.extraSemesters) return readOnlyData.extraSemesters;
+    try {
+      const saved = localStorage.getItem(`malla-${careerKey}-extraSemesters`);
+      return saved ? parseInt(saved, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  const displaySemesters = TOTAL_SEMESTERS + extraSemesters;
+  const numYears = Math.ceil(displaySemesters / 2);
 
   const isShared = !!readOnlyData;
   const isReadOnly = isShared && !readOnlyData.editable;
@@ -563,7 +574,8 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
           careerKey,
           approved: [...approved],
           plannedSemesters,
-          editable: shareEditable
+          editable: shareEditable,
+          extraSemesters
         })
       });
       const data = await res.json();
@@ -614,8 +626,28 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
 
   const resetPlanning = useCallback(() => {
     setPlannedSemesters({});
+    setExtraSemesters(0);
     localStorage.removeItem(`malla-${careerKey}-planned`);
+    localStorage.removeItem(`malla-${careerKey}-extraSemesters`);
   }, [careerKey]);
+
+  const handleAddSemester = () => {
+    if (isReadOnly) return;
+    setExtraSemesters(prev => {
+      const next = prev + 1;
+      if (!isShared) localStorage.setItem(`malla-${careerKey}-extraSemesters`, next.toString());
+      return next;
+    });
+  };
+
+  const handleRemoveSemester = () => {
+    if (isReadOnly) return;
+    setExtraSemesters(prev => {
+      const next = Math.max(0, prev - 1);
+      if (!isShared) localStorage.setItem(`malla-${careerKey}-extraSemesters`, next.toString());
+      return next;
+    });
+  };
 
   const markSemester = useCallback(
     (sem) => {
@@ -697,7 +729,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
 
   const semesters = useMemo(() => {
     const map = {};
-    for (let s = 1; s <= TOTAL_SEMESTERS; s++) map[s] = [];
+    for (let s = 1; s <= displaySemesters; s++) map[s] = [];
     for (const c of courses) {
       const targetSem = isPlannerMode ? (plannedSemesters[c.id] || c.semester) : c.semester;
       if (targetSem > 0 && map[targetSem]) {
@@ -705,7 +737,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
       }
     }
     return map;
-  }, [courses, TOTAL_SEMESTERS, plannedSemesters, isPlannerMode]);
+  }, [courses, displaySemesters, plannedSemesters, isPlannerMode]);
 
   function isSemAllDone(sem) {
     return semesters[sem] && semesters[sem].length > 0 && semesters[sem].every((c) => approved.has(c.id));
@@ -862,10 +894,22 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
                   Mi Planificador
                 </button>
               </div>
-              {isPlannerMode && Object.keys(plannedSemesters).length > 0 && (
-                <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={resetPlanning}>
-                  Restablecer orden
-                </button>
+              {isPlannerMode && (
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={handleAddSemester}>
+                    + Semestre
+                  </button>
+                  {extraSemesters > 0 && (
+                    <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={handleRemoveSemester}>
+                      - Semestre
+                    </button>
+                  )}
+                  {Object.keys(plannedSemesters).length > 0 && (
+                    <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={resetPlanning}>
+                      Restablecer orden
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -895,10 +939,10 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
 
         <div className="malla-scroll">
           <div className="malla-wrapper">
-            <div className="year-row" style={{ gridTemplateColumns: `repeat(${TOTAL_SEMESTERS}, minmax(110px, 1fr))` }}>
+            <div className="year-row" style={{ gridTemplateColumns: `repeat(${displaySemesters}, minmax(110px, 1fr))` }}>
               {Array.from({ length: numYears }, (_, i) => i + 1).map((y) => {
                 const s2 = y * 2;
-                const span = s2 <= TOTAL_SEMESTERS ? 2 : 1;
+                const span = s2 <= displaySemesters ? 2 : 1;
                 return (
                   <button
                     key={y}
@@ -911,8 +955,8 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
                 );
               })}
             </div>
-            <div className="malla-grid" style={{ gridTemplateColumns: `repeat(${TOTAL_SEMESTERS}, minmax(110px, 1fr))` }}>
-              {Array.from({ length: TOTAL_SEMESTERS }, (_, i) => i + 1).map((sem) => (
+            <div className="malla-grid" style={{ gridTemplateColumns: `repeat(${displaySemesters}, minmax(110px, 1fr))` }}>
+              {Array.from({ length: displaySemesters }, (_, i) => i + 1).map((sem) => (
                 <div 
                   className="semester-col" 
                   key={sem}
