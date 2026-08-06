@@ -894,26 +894,26 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
                   Mi Planificador
                 </button>
               </div>
-              {isPlannerMode && (
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={handleAddSemester}>
-                    + Semestre
-                  </button>
-                  {extraSemesters > 0 && (
-                    <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={handleRemoveSemester}>
-                      - Semestre
-                    </button>
-                  )}
-                  {Object.keys(plannedSemesters).length > 0 && (
-                    <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={resetPlanning}>
-                      Restablecer orden
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           </div>
-          <div className="dashboard-right">
+          <div className="dashboard-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {isPlannerMode && (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button className="btn" style={{ padding: "6px 12px", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-primary)" }} onClick={handleAddSemester}>
+                  + Semestre
+                </button>
+                {extraSemesters > 0 && (
+                  <button className="btn" style={{ padding: "6px 12px", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-primary)" }} onClick={handleRemoveSemester}>
+                    - Semestre
+                  </button>
+                )}
+                {Object.keys(plannedSemesters).length > 0 && (
+                  <button className="btn" style={{ padding: "6px 12px", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-primary)" }} onClick={resetPlanning}>
+                    Restablecer orden
+                  </button>
+                )}
+              </div>
+            )}
             <div className="progress-inline">
               <div className="progress-info">
                 <span className="progress-text">{approvedCredits} / {TOTAL_CREDITS} Créditos</span>

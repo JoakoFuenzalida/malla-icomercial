@@ -84,7 +84,7 @@ body {
 /* - Main Content - */
 .main-content {
   flex: 1;
-  max-width: 1400px;
+  max-width: 1800px;
   margin: 0 auto;
   width: 100%;
   padding: 1.25rem 1rem 0;
@@ -174,8 +174,20 @@ body {
   padding-bottom: 0.25rem;
 }
 
-.malla-scroll::-webkit-scrollbar { display: none; }
-.malla-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+.malla-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.malla-scroll::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+  border-radius: 4px;
+}
+.malla-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+.malla-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
 
 .malla-wrapper {
   min-width: fit-content;
