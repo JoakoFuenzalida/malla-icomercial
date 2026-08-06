@@ -894,22 +894,22 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
                   Mi Planificador
                 </button>
               </div>
+              {isPlannerMode && Object.keys(plannedSemesters).length > 0 && (
+                <button className="btn btn-clear" style={{ padding: "4px 8px" }} onClick={resetPlanning}>
+                  Restablecer orden
+                </button>
+              )}
             </div>
           </div>
-          <div className="dashboard-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <div className="dashboard-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
             {isPlannerMode && (
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <button className="btn" style={{ padding: "6px 12px", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-primary)" }} onClick={handleAddSemester}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap' }}>
+                <button className="btn" style={{ padding: "6px 12px", backgroundColor: "rgba(34, 197, 94, 0.15)", border: "1px solid #22c55e", color: "#22c55e", fontWeight: "600" }} onClick={handleAddSemester}>
                   + Semestre
                 </button>
                 {extraSemesters > 0 && (
-                  <button className="btn" style={{ padding: "6px 12px", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-primary)" }} onClick={handleRemoveSemester}>
+                  <button className="btn" style={{ padding: "6px 12px", backgroundColor: "rgba(245, 158, 11, 0.15)", border: "1px solid #f59e0b", color: "#f59e0b", fontWeight: "600" }} onClick={handleRemoveSemester}>
                     - Semestre
-                  </button>
-                )}
-                {Object.keys(plannedSemesters).length > 0 && (
-                  <button className="btn" style={{ padding: "6px 12px", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-primary)" }} onClick={resetPlanning}>
-                    Restablecer orden
                   </button>
                 )}
               </div>
@@ -939,7 +939,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
 
         <div className="malla-scroll">
           <div className="malla-wrapper">
-            <div className="year-row" style={{ gridTemplateColumns: `repeat(${displaySemesters}, minmax(110px, 1fr))` }}>
+            <div className="year-row" style={{ gridTemplateColumns: `repeat(${displaySemesters}, minmax(85px, 1fr))` }}>
               {Array.from({ length: numYears }, (_, i) => i + 1).map((y) => {
                 const s2 = y * 2;
                 const span = s2 <= displaySemesters ? 2 : 1;
@@ -955,7 +955,7 @@ function MallaApp({ careerKey, careerConfig, onSelectCareer, onGoHome, readOnlyD
                 );
               })}
             </div>
-            <div className="malla-grid" style={{ gridTemplateColumns: `repeat(${displaySemesters}, minmax(110px, 1fr))` }}>
+            <div className="malla-grid" style={{ gridTemplateColumns: `repeat(${displaySemesters}, minmax(85px, 1fr))` }}>
               {Array.from({ length: displaySemesters }, (_, i) => i + 1).map((sem) => (
                 <div 
                   className="semester-col" 
